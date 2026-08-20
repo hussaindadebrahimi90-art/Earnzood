@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EarnZood</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0b0f19;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .app {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 25px 0;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .balance {
+            background: #151c2c;
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .balance-title {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .balance-value {
+            font-size: 36px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .card {
+            background: #151c2c;
+            border-radius: 18px;
+            padding: 20px 10px;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        .icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        button {
+            border: none;
+            color: white;
+            background: #202a40;
+            border-radius: 12px;
+            padding: 10px 15px;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <div class="header">
+        <div class="logo">EarnZood</div>
+        <div>Earn • Complete • Reward</div>
+    </div>
+
+    <div class="balance">
+        <div class="balance-title">موجودی شما</div>
+        <div class="balance-value">0 AFN</div>
+    </div>
+
+    <div class="grid">
+
+        <div class="card">
+            <div class="icon">🎁</div>
+            پاداش روزانه
+            <br>
+            <button>دریافت</button>
+        </div>
+
+        <div class="card">
+            <div class="icon">📋</div>
+            مأموریت‌ها
+            <br>
+            <button>مشاهده</button>
+        </div>
+
+        <div class="card">
+            <div class="icon">📺</div>
+            تبلیغات
+            <br>
+            <button>مشاهده</button>
+        </div>
+
+        <div class="card">
+            <div class="icon">🎡</div>
+            گردونه شانس
+            <br>
+            <button>چرخاندن</button>
+        </div>
+
+        <div class="card">
+            <div class="icon">👥</div>
+            دعوت دوستان
+            <br>
+            <button>دعوت</button>
+        </div>
+
+        <div class="card">
+            <div class="icon">💳</div>
+            برداشت
+            <br>
+            <button>برداشت</button>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+  </html>
