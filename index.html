@@ -509,17 +509,92 @@ DAILY_REWARD.toFixed(2)
 /* =========================
    OTHER BUTTONS
 ========================= */
+functfunction openAds(){
 
-function openAds(){
+document.querySelector(".app").innerHTML = `
 
-const lang=
-localStorage.getItem("earnzood_language") || "fa";
+<div style="padding:20px">
 
-alert(translations[lang].coming);
+<div style="
+display:flex;
+align-items:center;
+gap:12px;
+margin-bottom:25px;
+">
+
+<button onclick="location.reload()" style="
+background:#171d2a;
+border:1px solid #283246;
+color:white;
+padding:10px 15px;
+border-radius:12px;
+font-size:18px;
+">←</button>
+
+<h2 style="margin:0">📺 تبلیغات</h2>
+
+</div>
+
+<div style="
+background:#111722;
+border:1px solid #273247;
+border-radius:22px;
+padding:25px;
+text-align:center;
+">
+
+<div style="font-size:55px">📺</div>
+
+<h3>مشاهده تبلیغ</h3>
+
+<p style="color:#9ca6b8">
+با مشاهده تبلیغات پاداش دریافت کنید.
+</p>
+
+<div style="
+margin:20px 0;
+font-size:25px;
+font-weight:bold;
+color:#f4c542;
+">
++$0.01
+</div>
+
+<button onclick="watchAd()" style="
+width:100%;
+padding:15px;
+border:0;
+border-radius:15px;
+background:#f4c542;
+color:#080b12;
+font-weight:bold;
+font-size:16px;
+">
+🎬 مشاهده تبلیغ
+</button>
+
+</div>
+
+<div style="
+margin-top:15px;
+background:#111722;
+border:1px solid #222d40;
+border-radius:18px;
+padding:18px;
+">
+
+📊 تبلیغات امروز: <b>0 / 5</b>
+
+<br><br>
+
+💰 درآمد تبلیغات: <b>$0.00</b>
+
+</div>
+
+</div>
+`;
 
 }
-
-
 function openTasks(){
 
 const lang=
