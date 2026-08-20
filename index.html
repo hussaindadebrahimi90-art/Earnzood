@@ -1,150 +1,302 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EarnZood</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>EarnZood</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #0b0f19;
-            color: white;
-            min-height: 100vh;
-        }
-
-        .app {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-        }
-
-        .header {
-            text-align: center;
-            padding: 25px 0;
-        }
-
-        .logo {
-            font-size: 32px;
-            font-weight: bold;
-        }
-
-        .balance {
-            background: #151c2c;
-            border-radius: 20px;
-            padding: 25px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .balance-title {
-            color: #9ca3af;
-            font-size: 14px;
-        }
-
-        .balance-value {
-            font-size: 36px;
-            font-weight: bold;
-            margin-top: 8px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        .card {
-            background: #151c2c;
-            border-radius: 18px;
-            padding: 20px 10px;
-            text-align: center;
-            font-size: 15px;
-        }
-
-        .icon {
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
-
-        button {
-            border: none;
-            color: white;
-            background: #202a40;
-            border-radius: 12px;
-            padding: 10px 15px;
-            margin-top: 8px;
-            cursor: pointer;
-        }
-    </style>
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:#080b12;
+color:#fff;
+}
+.app{
+max-width:520px;
+margin:auto;
+min-height:100vh;
+padding-bottom:85px;
+}
+.header{
+padding:22px 18px 10px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+.logo{
+font-size:25px;
+font-weight:800;
+}
+.lang{
+background:#171d2a;
+border:1px solid #283246;
+color:white;
+padding:8px 11px;
+border-radius:12px;
+}
+.balance{
+margin:12px 18px;
+padding:24px;
+border-radius:22px;
+background:linear-gradient(135deg,#171d2b,#101521);
+border:1px solid #273247;
+text-align:center;
+}
+.balance small{color:#9ca6b8}
+.amount{
+font-size:38px;
+font-weight:800;
+margin:8px 0;
+}
+.currency{color:#f4c542}
+.cards{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+padding:8px 18px;
+}
+.card{
+background:#111722;
+border:1px solid #222d40;
+border-radius:19px;
+padding:20px 12px;
+text-align:center;
+transition:.2s;
+}
+.card:active{transform:scale(.97)}
+.icon{
+font-size:30px;
+margin-bottom:9px;
+}
+.card b{display:block;margin-bottom:5px}
+.card span{
+font-size:12px;
+color:#8994a8;
+}
+.ref{
+margin:12px 18px;
+padding:18px;
+background:#111722;
+border:1px solid #222d40;
+border-radius:19px;
+}
+.ref-title{
+font-weight:bold;
+margin-bottom:8px;
+}
+.ref-info{
+color:#9ba5b6;
+font-size:13px;
+}
+.nav{
+position:fixed;
+bottom:0;
+left:50%;
+transform:translateX(-50%);
+width:100%;
+max-width:520px;
+height:72px;
+background:#0d121c;
+border-top:1px solid #222c3c;
+display:flex;
+justify-content:space-around;
+align-items:center;
+}
+.nav button{
+background:none;
+border:0;
+color:#8e98aa;
+font-size:12px;
+}
+.nav button div{
+font-size:22px;
+margin-bottom:3px;
+}
+.nav .active{color:#f4c542}
+</style>
 </head>
 
 <body>
 
 <div class="app">
 
-    <div class="header">
-        <div class="logo">EarnZood</div>
-        <div>Earn • Complete • Reward</div>
-    </div>
+<header class="header">
+<div class="logo">Earn<span class="currency">Zood</span></div>
 
-    <div class="balance">
-        <div class="balance-title">موجودی شما</div>
-        <div class="balance-value">0 AFN</div>
-    </div>
+<select class="lang" id="language">
+<option value="fa">فارسی</option>
+<option value="en">English</option>
+<option value="ar">العربية</option>
+</select>
+</header>
 
-    <div class="grid">
+<section class="balance">
+<small id="balanceTitle">موجودی شما</small>
+<div class="amount">$0.00</div>
+<small>USD</small>
+</section>
 
-        <div class="card">
-            <div class="icon">🎁</div>
-            پاداش روزانه
-            <br>
-            <button>دریافت</button>
-        </div>
+<section class="cards">
 
-        <div class="card">
-            <div class="icon">📋</div>
-            مأموریت‌ها
-            <br>
-            <button>مشاهده</button>
-        </div>
+<div class="card">
+<div class="icon">🎁</div>
+<b id="daily">پاداش روزانه</b>
+<span id="dailySub">پاداش امروز را بگیر</span>
+</div>
 
-        <div class="card">
-            <div class="icon">📺</div>
-            تبلیغات
-            <br>
-            <button>مشاهده</button>
-        </div>
+<div class="card">
+<div class="icon">📺</div>
+<b id="ads">تبلیغات</b>
+<span id="adsSub">با مشاهده تبلیغ درآمد بگیر</span>
+</div>
 
-        <div class="card">
-            <div class="icon">🎡</div>
-            گردونه شانس
-            <br>
-            <button>چرخاندن</button>
-        </div>
+<div class="card">
+<div class="icon">📋</div>
+<b id="tasks">ماموریت‌ها</b>
+<span id="tasksSub">تسک انجام بده و پاداش بگیر</span>
+</div>
 
-        <div class="card">
-            <div class="icon">👥</div>
-            دعوت دوستان
-            <br>
-            <button>دعوت</button>
-        </div>
+<div class="card">
+<div class="icon">🎡</div>
+<b id="wheel">گردونه شانس</b>
+<span id="wheelSub">شانس خود را امتحان کن</span>
+</div>
 
-        <div class="card">
-            <div class="icon">💳</div>
-            برداشت
-            <br>
-            <button>برداشت</button>
-        </div>
+</section>
 
-    </div>
+<section class="ref">
+<div class="ref-title" id="refTitle">👥 دعوت دوستان</div>
+<div class="ref-info" id="refInfo">
+دوستانت را دعوت کن و پاداش دریافت کن.
+</div>
+</section>
+
+<nav class="nav">
+
+<button class="active">
+<div>🏠</div>
+<span id="home">خانه</span>
+</button>
+
+<button>
+<div>📋</div>
+<span id="navTasks">تسک‌ها</span>
+</button>
+
+<button>
+<div>👥</div>
+<span id="invite">دعوت</span>
+</button>
+
+<button>
+<div>👤</div>
+<span id="account">حساب</span>
+</button>
+
+</nav>
 
 </div>
 
+<script>
+
+const translations={
+
+fa:{
+balance:"موجودی شما",
+daily:"پاداش روزانه",
+dailySub:"پاداش امروز را بگیر",
+ads:"تبلیغات",
+adsSub:"با مشاهده تبلیغ درآمد بگیر",
+tasks:"ماموریت‌ها",
+tasksSub:"تسک انجام بده و پاداش بگیر",
+wheel:"گردونه شانس",
+wheelSub:"شانس خود را امتحان کن",
+refTitle:"👥 دعوت دوستان",
+refInfo:"دوستانت را دعوت کن و پاداش دریافت کن.",
+home:"خانه",
+navTasks:"تسک‌ها",
+invite:"دعوت",
+account:"حساب"
+},
+
+en:{
+balance:"Your Balance",
+daily:"Daily Reward",
+dailySub:"Claim your daily reward",
+ads:"Advertisements",
+adsSub:"Earn by watching ads",
+tasks:"Missions",
+tasksSub:"Complete tasks and earn rewards",
+wheel:"Lucky Wheel",
+wheelSub:"Try your luck",
+refTitle:"👥 Invite Friends",
+refInfo:"Invite your friends and earn rewards.",
+home:"Home",
+navTasks:"Tasks",
+invite:"Invite",
+account:"Account"
+},
+
+ar:{
+balance:"رصيدك",
+daily:"المكافأة اليومية",
+dailySub:"احصل على مكافأتك اليومية",
+ads:"الإعلانات",
+adsSub:"اربح من مشاهدة الإعلانات",
+tasks:"المهام",
+tasksSub:"أنجز المهام واحصل على المكافآت",
+wheel:"عجلة الحظ",
+wheelSub:"جرب حظك",
+refTitle:"👥 دعوة الأصدقاء",
+refInfo:"ادعُ أصدقاءك واحصل على المكافآت.",
+home:"الرئيسية",
+navTasks:"المهام",
+invite:"دعوة",
+account:"الحساب"
+}
+
+};
+
+function setLanguage(lang){
+
+const t=translations[lang];
+
+document.documentElement.lang=lang;
+document.documentElement.dir=lang==="en"?"ltr":"rtl";
+
+document.getElementById("balanceTitle").textContent=t.balance;
+document.getElementById("daily").textContent=t.daily;
+document.getElementById("dailySub").textContent=t.dailySub;
+document.getElementById("ads").textContent=t.ads;
+document.getElementById("adsSub").textContent=t.adsSub;
+document.getElementById("tasks").textContent=t.tasks;
+document.getElementById("tasksSub").textContent=t.tasksSub;
+document.getElementById("wheel").textContent=t.wheel;
+document.getElementById("wheelSub").textContent=t.wheelSub;
+document.getElementById("refTitle").textContent=t.refTitle;
+document.getElementById("refInfo").textContent=t.refInfo;
+document.getElementById("home").textContent=t.home;
+document.getElementById("navTasks").textContent=t.navTasks;
+document.getElementById("invite").textContent=t.invite;
+document.getElementById("account").textContent=t.account;
+
+localStorage.setItem("earnzood_language",lang);
+}
+
+const saved=localStorage.getItem("earnzood_language");
+
+if(saved){
+document.getElementById("language").value=saved;
+setLanguage(saved);
+}
+
+document.getElementById("language").addEventListener("change",function(){
+setLanguage(this.value);
+});
+
+</script>
+
 </body>
-  </html>
+    </html>
