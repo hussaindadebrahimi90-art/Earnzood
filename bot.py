@@ -1,84 +1,41 @@
 import os
 import json
 import base64
-import urllib.request
+import requests
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+
+REPO = "hussaindadebrahimi90-art/Earnzood"
+FILE_PATH = "users.json"
+BRANCH = "main"
 
 WEB_APP_URL = "https://hussaindadebrahimi90-art.github.io/Earnzood/"
-BOT_USERNAME = "Earnzood_bot"
-
-REPOSITORY = os.getenv(
-    "GITHUB_REPOSITORY",
-    "hussaindadebrahimi90-art/Earnzood"
-)
-
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-DATA_FILE = "users.json"
 
 
-# =========================
-# GitHub Storage
-# =========================
+def github_get():
+    url = f"https://api.github.com/repos/{REPO}/contents/{FILE_PATH}?ref={BRANCH}"
 
-def github_request(url, method="GET", data=None):
-    headers = {
-        "Authorization": f"Bearer {GITHUB_TOKEN}",
-        "Accept": "application/vnd.github+json",
-        "User-Agent": "EarnZood-Bot"
-    }
-
-    request = urllib.request.Request(
+    r = requests.get(
         url,
-        data=data,
-        headers=headers,
-        method=method
+        headers={"Authorization": f"Bearer {GITHUB_TOKEN}"},
+        timeout=15
     )
 
-    with urllib.request.urlopen(request, timeout=20) as response:
-        return json.loads(response.read().decode())
+    if r.status_code == 200:
+        data = r.json()
+        content = base64.b64decode(data["content"]).decode("utf-8")
+        return json.loads(content), data["sha"]
+
+    if r.status_code == 404:
+        return {}, None
+
+    raise Exception(f"GitHub GET error: {r.status_code} {r.text}")
 
 
-def load_users():
-    if not GITHUB_TOKEN:
-        return {}
-
-    try:
-        url = (
-            f"https://api.github.com/repos/"
-            f"{REPOSITORY}/contents/{DATA_FILE}"
-        )
-
-        result = github_request(url)
-
-        content = base64.b64decode(
-            result["content"]
-        ).decode("utf-8")
-
-        return json.loads(content)
-
-    except Exception:
-        return {}
-
-
-def save_users(users):
-    if not GITHUB_TOKEN:
-        print("WARNING: GITHUB_TOKEN is not configured")
-        return
-
-    url = (
-        f"https://api.github.com/repos/"
-        f"{REPOSITORY}/contents/{DATA_FILE}"
-    )
-
-    try:
-        current = github_request(url)
-        sha = current["sha"]
-    except Exception:
-        sha = None
-
+def github_save(users, sha):
     content = json.dumps(
         users,
         ensure_ascii=False,
@@ -89,240 +46,141 @@ def save_users(users):
         content.encode("utf-8")
     ).decode("utf-8")
 
-    payload = {
-        "message": "Update EarnZood users",
+    url = f"https://api.github.com/repos/{REPO}/contents/{FILE_PATH}"
+
+    body = {
+        "message": "Update referral users",
         "content": encoded,
-        "branch": "main"
+        "branch": BRANCH
     }
 
     if sha:
-        payload["sha"] = sha
+        body["sha"] = sha
 
-    github_request(
+    r = requests.put(
         url,
-        method="PUT",
-        data=json.dumps(payload).encode()
+        headers={
+            "Authorization": f"Bearer {GITHUB_TOKEN}",
+            "Accept": "application/vnd.github+json"
+        },
+        json=body,
+        timeout=15
     )
 
+    if r.status_code not in (200, 201):
+        raise Exception(
+            f"GitHub SAVE error: {r.status_code} {r.text}"
+        )
 
-# =========================
-# User System
-# =========================
-
-def get_user(users, user_id):
-    return users.get(str(user_id))
-
-
-def create_user(users, user_id, username="", first_name=""):
-    uid = str(user_id)
-
-    if uid not in users:
-        users[uid] = {
-            "id": user_id,
-            "username": username or "",
-            "first_name": first_name or "",
-            "balance": 0.0,
-            "referrals": [],
-            "referred_by": None,
-            "referral_earned": 0.0
-        }
-        return True
-
-    return False
-
-
-# =========================
-# START
-# =========================
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user = update.effective_user
-    users = load_users()
 
-    user_id = user.id
+    user_id = str(user.id)
 
-    is_new = create_user(
-        users,
-        user_id,
-        user.username,
-        user.first_name
-    )
+    args = context.args
 
-    referral_id = None
+    referrer_id = None
 
-    if context.args:
-        referral_id = context.args[0]
+    if args:
+        if args[0].isdigit():
+            referrer_id = args[0]
 
-    # =========================
-    # Referral
-    # =========================
+    try:
 
-    if is_new and referral_id:
+        users, sha = github_get()
 
-        try:
-            referral_id = int(referral_id)
+        if user_id not in users:
 
-            # کاربر نمی‌تواند خودش را دعوت کند
-            if referral_id != user_id:
+            users[user_id] = {
+                "id": user.id,
+                "username": user.username or "",
+                "first_name": user.first_name or "",
+                "balance": 0,
+                "referrals": 0,
+                "referrer": None
+            }
 
-                inviter = get_user(
-                    users,
-                    referral_id
+            if (
+                referrer_id
+                and referrer_id != user_id
+                and referrer_id in users
+            ):
+
+                users[user_id]["referrer"] = referrer_id
+
+                users[referrer_id]["referrals"] = (
+                    users[referrer_id].get("referrals", 0) + 1
                 )
 
-                if inviter:
+            github_save(users, sha)
 
-                    users[str(user_id)]["referred_by"] = referral_id
+        else:
 
-                    # پاداش رفرال
-                    referral_reward = 0.10
+            changed = False
 
-                    users[str(referral_id)]["balance"] += referral_reward
+            if (
+                referrer_id
+                and referrer_id != user_id
+                and not users[user_id].get("referrer")
+                and referrer_id in users
+            ):
 
-                    users[str(referral_id)]["referrals"].append(
-                        user_id
-                    )
+                users[user_id]["referrer"] = referrer_id
 
-                    users[str(referral_id)]["referral_earned"] += referral_reward
+                users[referrer_id]["referrals"] = (
+                    users[referrer_id].get("referrals", 0) + 1
+                )
 
-        except ValueError:
-            pass
+                changed = True
 
-    if is_new:
-        save_users(users)
+            if changed:
+                github_save(users, sha)
 
-    # =========================
-    # Mini App Button
-    # =========================
+    except Exception as e:
+        print("Referral error:", e)
 
     keyboard = [
         [
             InlineKeyboardButton(
                 "🚀 شروع کسب درآمد",
-                web_app=WebAppInfo(
-                    url=WEB_APP_URL
-                )
+                web_app=WebAppInfo(url=WEB_APP_URL)
             )
         ]
     ]
 
-    reply_markup = InlineKeyboardMarkup(
-        keyboard
-    )
-
-    text = f"""
-🎉 به EarnZood خوش آمدید!
-
-💰 روش‌های کسب درآمد:
-
-🎁 پاداش روزانه
-📺 مشاهده تبلیغات
-📋 انجام تسک‌ها
-👥 دعوت دوستان
-
-👥 لینک دعوت شما:
-
-https://t.me/{BOT_USERNAME}?start={user_id}
-
-💎 با دعوت دوستان می‌توانید پاداش دریافت کنید.
-
-🚀 برای شروع روی دکمه زیر بزنید.
-"""
-
     await update.message.reply_text(
-        text,
-        reply_markup=reply_markup
+        "🎉 به EarnZood خوش آمدید!\n\n"
+        "💰 روش‌های کسب درآمد:\n\n"
+        "🎁 پاداش روزانه\n"
+        "📺 مشاهده تبلیغات\n"
+        "📋 انجام تسک‌ها\n"
+        "👥 دعوت دوستان\n\n"
+        "🚀 برای شروع روی دکمه زیر بزنید.",
+        reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
 
-# =========================
-# PROFILE
-# =========================
-
-async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-    user = update.effective_user
-    users = load_users()
-
-    data = get_user(
-        users,
-        user.id
-    )
-
-    if not data:
-        create_user(
-            users,
-            user.id,
-            user.username,
-            user.first_name
-        )
-        save_users(users)
-        data = users[str(user.id)]
-
-    link = (
-        f"https://t.me/"
-        f"{BOT_USERNAME}"
-        f"?start={user.id}"
-    )
-
-    text = f"""
-👤 حساب کاربری
-
-🆔 ID: {user.id}
-
-💰 موجودی:
-${data["balance"]:.2f}
-
-👥 تعداد دعوت‌ها:
-{len(data["referrals"])}
-
-🔗 لینک دعوت:
-
-{link}
-"""
-
-    await update.message.reply_text(text)
-
-
-# =========================
-# MAIN
-# =========================
-
-def main():
+async def main():
 
     if not BOT_TOKEN:
-        raise RuntimeError(
-            "BOT_TOKEN is not configured"
-        )
+        raise RuntimeError("BOT_TOKEN is not configured")
 
-    app = (
-        Application
-        .builder()
-        .token(BOT_TOKEN)
-        .build()
-    )
+    if not GITHUB_TOKEN:
+        raise RuntimeError("GITHUB_TOKEN is not configured")
+
+    app = Application.builder().token(BOT_TOKEN).build()
 
     app.add_handler(
-        CommandHandler(
-            "start",
-            start
-        )
-    )
-
-    app.add_handler(
-        CommandHandler(
-            "profile",
-            profile
-        )
+        CommandHandler("start", start)
     )
 
     print("EarnZood Bot is running...")
 
-    # مهم:
-    # run_polling را await نمی‌کنیم
-    app.run_polling()
+    await app.run_polling()
 
 
 if __name__ == "__main__":
-    main()
+    import asyncio
+    asyncio.run(main())
