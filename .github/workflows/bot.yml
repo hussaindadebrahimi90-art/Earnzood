@@ -2,9 +2,15 @@ name: EarnZood Bot
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
 
 jobs:
-  bot:
+  run-bot:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,9 +24,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install python-telegram-bot==22.8
+          pip install python-telegram-bot requests
 
-      - name: Run bot
+      - name: Run Bot
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-        run: python bot.py
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python bot.py
