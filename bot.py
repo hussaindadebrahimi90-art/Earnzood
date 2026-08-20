@@ -2,8 +2,24 @@ import os
 import json
 import base64
 import requests
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
-from telegram.ext import Application, CommandHandler, ContextTypes
+
+from telegram import (
+    Update,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    WebAppInfo
+)
+
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    ContextTypes
+)
+
+
+# =========================
+# CONFIG
+# =========================
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
@@ -15,27 +31,53 @@ BRANCH = "main"
 WEB_APP_URL = "https://hussaindadebrahimi90-art.github.io/Earnzood/"
 
 
-def github_get():
-    url = f"https://api.github.com/repos/{REPO}/contents/{FILE_PATH}?ref={BRANCH}"
+# =========================
+# GITHUB
+# =========================
 
-    r = requests.get(
-        url,
-        headers={"Authorization": f"Bearer {GITHUB_TOKEN}"},
-        timeout=15
+def github_headers():
+    return {
+        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28"
+    }
+
+
+def load_users():
+
+    url = (
+        f"https://api.github.com/repos/"
+        f"{REPO}/contents/{FILE_PATH}?ref={BRANCH}"
     )
 
-    if r.status_code == 200:
-        data = r.json()
-        content = base64.b64decode(data["content"]).decode("utf-8")
-        return json.loads(content), data["sha"]
+    response = requests.get(
+        url,
+        headers=github_headers(),
+        timeout=20
+    )
 
-    if r.status_code == 404:
+    if response.status_code == 404:
         return {}, None
 
-    raise Exception(f"GitHub GET error: {r.status_code} {r.text}")
+    if response.status_code != 200:
+        raise RuntimeError(
+            f"GitHub load error: "
+            f"{response.status_code} {response.text}"
+        )
+
+    data = response.json()
+
+    content = base64.b64decode(
+        data["content"]
+    ).decode("utf-8")
+
+    users = json.loads(content)
+
+    return users, data["sha"]
 
 
-def github_save(users, sha):
+def save_users(users, sha):
+
     content = json.dumps(
         users,
         ensure_ascii=False,
@@ -46,50 +88,75 @@ def github_save(users, sha):
         content.encode("utf-8")
     ).decode("utf-8")
 
-    url = f"https://api.github.com/repos/{REPO}/contents/{FILE_PATH}"
+    url = (
+        f"https://api.github.com/repos/"
+        f"{REPO}/contents/{FILE_PATH}"
+    )
 
-    body = {
-        "message": "Update referral users",
+    payload = {
+        "message": "Update EarnZood users",
         "content": encoded,
         "branch": BRANCH
     }
 
     if sha:
-        body["sha"] = sha
+        payload["sha"] = sha
 
-    r = requests.put(
+    response = requests.put(
         url,
-        headers={
-            "Authorization": f"Bearer {GITHUB_TOKEN}",
-            "Accept": "application/vnd.github+json"
-        },
-        json=body,
-        timeout=15
+        headers=github_headers(),
+        json=payload,
+        timeout=20
     )
 
-    if r.status_code not in (200, 201):
-        raise Exception(
-            f"GitHub SAVE error: {r.status_code} {r.text}"
+    if response.status_code not in (200, 201):
+
+        raise RuntimeError(
+            f"GitHub save error: "
+            f"{response.status_code} {response.text}"
         )
 
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+# =========================
+# START
+# =========================
+
+async def start(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+):
 
     user = update.effective_user
 
+    if not user or not update.message:
+        return
+
     user_id = str(user.id)
 
-    args = context.args
+    # -------------------------
+    # Referral parameter
+    # -------------------------
 
     referrer_id = None
 
-    if args:
-        if args[0].isdigit():
-            referrer_id = args[0]
+    if context.args:
+
+        value = context.args[0].strip()
+
+        if value.isdigit():
+            referrer_id = value
+
 
     try:
 
-        users, sha = github_get()
+        users, sha = load_users()
+
+        changed = False
+
+
+        # =========================
+        # NEW USER
+        # =========================
 
         if user_id not in users:
 
@@ -97,10 +164,17 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "id": user.id,
                 "username": user.username or "",
                 "first_name": user.first_name or "",
-                "balance": 0,
+                "balance": 0.0,
                 "referrals": 0,
                 "referrer": None
             }
+
+            changed = True
+
+
+            # =========================
+            # REGISTER REFERRAL
+            # =========================
 
             if (
                 referrer_id
@@ -111,14 +185,20 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 users[user_id]["referrer"] = referrer_id
 
                 users[referrer_id]["referrals"] = (
-                    users[referrer_id].get("referrals", 0) + 1
+                    users[referrer_id].get(
+                        "referrals",
+                        0
+                    ) + 1
                 )
 
-            github_save(users, sha)
+
+        # =========================
+        # EXISTING USER
+        # =========================
 
         else:
 
-            changed = False
+            # Referral can only be assigned once
 
             if (
                 referrer_id
@@ -130,57 +210,132 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 users[user_id]["referrer"] = referrer_id
 
                 users[referrer_id]["referrals"] = (
-                    users[referrer_id].get("referrals", 0) + 1
+                    users[referrer_id].get(
+                        "referrals",
+                        0
+                    ) + 1
                 )
 
                 changed = True
 
-            if changed:
-                github_save(users, sha)
 
-    except Exception as e:
-        print("Referral error:", e)
+        # =========================
+        # SAVE
+        # =========================
+
+        if changed:
+
+            save_users(
+                users,
+                sha
+            )
+
+            print(
+                f"User {user_id} saved successfully."
+            )
+
+
+    except Exception as error:
+
+        print(
+            "Referral/GitHub error:",
+            error
+        )
+
+
+    # =========================
+    # MINI APP BUTTON
+    # =========================
 
     keyboard = [
         [
             InlineKeyboardButton(
                 "🚀 شروع کسب درآمد",
-                web_app=WebAppInfo(url=WEB_APP_URL)
+                web_app=WebAppInfo(
+                    url=WEB_APP_URL
+                )
             )
         ]
     ]
 
-    await update.message.reply_text(
-        "🎉 به EarnZood خوش آمدید!\n\n"
-        "💰 روش‌های کسب درآمد:\n\n"
-        "🎁 پاداش روزانه\n"
-        "📺 مشاهده تبلیغات\n"
-        "📋 انجام تسک‌ها\n"
-        "👥 دعوت دوستان\n\n"
-        "🚀 برای شروع روی دکمه زیر بزنید.",
-        reply_markup=InlineKeyboardMarkup(keyboard)
+    markup = InlineKeyboardMarkup(
+        keyboard
     )
 
 
-async def main():
+    # =========================
+    # WELCOME MESSAGE
+    # =========================
+
+    text = """
+🎉 به EarnZood خوش آمدید!
+
+💰 روش‌های کسب درآمد:
+
+🎁 پاداش روزانه
+📺 مشاهده تبلیغات
+📋 انجام تسک‌ها
+👥 دعوت دوستان
+
+🚀 برای شروع روی دکمه زیر بزنید.
+"""
+
+    await update.message.reply_text(
+        text,
+        reply_markup=markup
+    )
+
+
+# =========================
+# MAIN
+# =========================
+
+def main():
 
     if not BOT_TOKEN:
-        raise RuntimeError("BOT_TOKEN is not configured")
+
+        raise RuntimeError(
+            "BOT_TOKEN is not configured"
+        )
 
     if not GITHUB_TOKEN:
-        raise RuntimeError("GITHUB_TOKEN is not configured")
 
-    app = Application.builder().token(BOT_TOKEN).build()
+        raise RuntimeError(
+            "GITHUB_TOKEN is not configured"
+        )
 
-    app.add_handler(
-        CommandHandler("start", start)
+
+    application = (
+        Application
+        .builder()
+        .token(BOT_TOKEN)
+        .build()
     )
 
-    print("EarnZood Bot is running...")
 
-    await app.run_polling()
+    application.add_handler(
+        CommandHandler(
+            "start",
+            start
+        )
+    )
 
+
+    print(
+        "EarnZood Bot is running..."
+    )
+
+
+    # مهم:
+    # asyncio.run استفاده نمی‌کنیم.
+    # خود run_polling مدیریت Event Loop را انجام می‌دهد.
+
+    application.run_polling()
+
+
+# =========================
+# RUN
+# =========================
 
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
+    main()
