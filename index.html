@@ -2,13 +2,13 @@
 <html lang="fa" dir="rtl">
 
 <head>
-
 <meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
 <title>EarnZood</title>
+
+<!-- AdsGram SDK -->
+<script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
 <style>
 
@@ -168,6 +168,13 @@ color:#f4c542;
 padding:20px;
 }
 
+.page-title{
+display:flex;
+align-items:center;
+gap:12px;
+margin-bottom:20px;
+}
+
 .back{
 background:#171d2a;
 border:1px solid #283246;
@@ -176,13 +183,6 @@ padding:10px 14px;
 border-radius:12px;
 font-size:18px;
 cursor:pointer;
-}
-
-.page-title{
-display:flex;
-align-items:center;
-gap:12px;
-margin-bottom:20px;
 }
 
 .panel{
@@ -222,15 +222,9 @@ font-size:16px;
 cursor:pointer;
 }
 
-.secondary{
-width:100%;
-padding:14px;
-border:1px solid #283246;
-border-radius:15px;
-background:#171d2a;
-color:#fff;
-font-weight:bold;
-cursor:pointer;
+.primary:disabled{
+opacity:.5;
+cursor:not-allowed;
 }
 
 .stat{
@@ -245,21 +239,32 @@ border-bottom:0;
 }
 
 </style>
-
 </head>
 
 <body>
 
 <div class="app" id="app"></div>
 
-
 <script>
+
+/* =========================
+   CONFIG
+========================= */
+
+const DAILY_REWARD = 0.01;
+
+const AD_REWARD = 0.01;
+
+const MAX_ADS = 5;
+
+const ADSGRAM_BLOCK_ID = "43722";
+
 
 /* =========================
    TRANSLATIONS
 ========================= */
 
-const T={
+const T = {
 
 fa:{
 balance:"موجودی شما",
@@ -284,17 +289,21 @@ hours:"ساعت",
 minutes:"دقیقه",
 adsTitle:"📺 تبلیغات",
 watch:"مشاهده تبلیغ",
-adsText:"با مشاهده تبلیغات پاداش دریافت کنید.",
+adsText:"تبلیغ را تا پایان مشاهده کن و پاداش بگیر.",
 todayAds:"تبلیغات امروز",
 adIncome:"درآمد تبلیغات",
+adLimit:"سقف تبلیغات امروز تکمیل شده است.",
+adError:"تبلیغ در حال حاضر در دسترس نیست. دوباره تلاش کن.",
+adSuccess:"🎉 پاداش تبلیغ دریافت شد!",
 tasksTitle:"📋 ماموریت‌ها",
 tasksText:"ماموریت‌های موجود را انجام بده و پاداش بگیر.",
 wheelTitle:"🎡 گردونه شانس",
 wheelText:"شانس خود را امتحان کن.",
-invite:"👥 دعوت دوستان",
-inviteText:"دوستان خود را دعوت کنید و پاداش بگیرید.",
+invitePage:"👥 دعوت دوستان",
+invitePageText:"دوستان خود را دعوت کنید و پاداش بگیرید.",
 accountTitle:"👤 حساب کاربری",
-balance:"موجودی",
+balanceLabel:"موجودی",
+referrals:"تعداد دعوت‌شده",
 coming:"این بخش به‌زودی فعال می‌شود."
 },
 
@@ -321,17 +330,21 @@ hours:"hours",
 minutes:"minutes",
 adsTitle:"📺 Advertisements",
 watch:"Watch Advertisement",
-adsText:"Watch advertisements and earn rewards.",
+adsText:"Watch the advertisement until the end and earn a reward.",
 todayAds:"Today's Ads",
 adIncome:"Ad Earnings",
+adLimit:"Today's ad limit has been reached.",
+adError:"Advertisement is currently unavailable. Try again.",
+adSuccess:"🎉 Ad reward received!",
 tasksTitle:"📋 Missions",
 tasksText:"Complete available missions and earn rewards.",
 wheelTitle:"🎡 Lucky Wheel",
 wheelText:"Try your luck.",
-invite:"👥 Invite Friends",
-inviteText:"Invite your friends and earn rewards.",
+invitePage:"👥 Invite Friends",
+invitePageText:"Invite your friends and earn rewards.",
 accountTitle:"👤 Account",
-balance:"Balance",
+balanceLabel:"Balance",
+referrals:"Referrals",
 coming:"This section will be available soon."
 },
 
@@ -358,17 +371,21 @@ hours:"ساعة",
 minutes:"دقيقة",
 adsTitle:"📺 الإعلانات",
 watch:"مشاهدة الإعلان",
-adsText:"شاهد الإعلانات واحصل على المكافآت.",
+adsText:"شاهد الإعلان حتى النهاية واحصل على مكافأة.",
 todayAds:"إعلانات اليوم",
 adIncome:"أرباح الإعلانات",
+adLimit:"تم الوصول إلى حد الإعلانات اليوم.",
+adError:"الإعلان غير متاح حاليًا. حاول مرة أخرى.",
+adSuccess:"🎉 تم استلام مكافأة الإعلان!",
 tasksTitle:"📋 المهام",
 tasksText:"أنجز المهام المتاحة واحصل على المكافآت.",
 wheelTitle:"🎡 عجلة الحظ",
 wheelText:"جرب حظك.",
-invite:"👥 دعوة الأصدقاء",
-inviteText:"ادعُ أصدقاءك واحصل على المكافآت.",
+invitePage:"👥 دعوة الأصدقاء",
+invitePageText:"ادعُ أصدقاءك واحصل على المكافآت.",
 accountTitle:"👤 الحساب",
-balance:"الرصيد",
+balanceLabel:"الرصيد",
+referrals:"عدد المدعوين",
 coming:"هذا القسم سيكون متاحًا قريبًا."
 }
 
@@ -376,19 +393,10 @@ coming:"هذا القسم سيكون متاحًا قريبًا."
 
 
 /* =========================
-   SETTINGS
-========================= */
-
-const DAILY_REWARD=0.01;
-
-const MAX_ADS=5;
-
-
-/* =========================
    LANGUAGE
 ========================= */
 
-function lang(){
+function getLang(){
 
 return localStorage.getItem("earnzood_language") || "fa";
 
@@ -396,7 +404,7 @@ return localStorage.getItem("earnzood_language") || "fa";
 
 function tr(){
 
-return T[lang()];
+return T[getLang()];
 
 }
 
@@ -424,7 +432,9 @@ renderHome();
 function getBalance(){
 
 return Number(
-localStorage.getItem("earnzood_balance") || "0"
+localStorage.getItem(
+"earnzood_balance"
+) || "0"
 );
 
 }
@@ -435,20 +445,6 @@ localStorage.setItem(
 "earnzood_balance",
 Number(value).toFixed(2)
 );
-
-}
-
-function updateBalance(){
-
-const el=
-document.getElementById("balanceAmount");
-
-if(el){
-
-el.textContent=
-"$"+getBalance().toFixed(2);
-
-}
 
 }
 
@@ -473,17 +469,17 @@ Earn<span class="gold">Zood</span>
 onchange="setLang(this.value)">
 
 <option value="fa"
-${lang()==="fa"?"selected":""}>
+${getLang()==="fa"?"selected":""}>
 فارسی
 </option>
 
 <option value="en"
-${lang()==="en"?"selected":""}>
+${getLang()==="en"?"selected":""}>
 English
 </option>
 
 <option value="ar"
-${lang()==="ar"?"selected":""}>
+${getLang()==="ar"?"selected":""}>
 العربية
 </option>
 
@@ -496,8 +492,7 @@ ${lang()==="ar"?"selected":""}>
 
 <small>${t.balance}</small>
 
-<div class="amount"
-id="balanceAmount">
+<div class="amount">
 $${getBalance().toFixed(2)}
 </div>
 
@@ -578,7 +573,6 @@ ${t.inviteText}
 onclick="renderHome()">
 
 <div>🏠</div>
-
 <span>${t.home}</span>
 
 </button>
@@ -587,7 +581,6 @@ onclick="renderHome()">
 onclick="renderTasks()">
 
 <div>📋</div>
-
 <span>${t.tasksNav}</span>
 
 </button>
@@ -596,7 +589,6 @@ onclick="renderTasks()">
 onclick="renderInvite()">
 
 <div>👥</div>
-
 <span>${t.invite}</span>
 
 </button>
@@ -605,7 +597,6 @@ onclick="renderInvite()">
 onclick="renderAccount()">
 
 <div>👤</div>
-
 <span>${t.account}</span>
 
 </button>
@@ -664,11 +655,9 @@ return;
 
 }
 
-
-const newBalance=
-getBalance()+DAILY_REWARD;
-
-setBalance(newBalance);
+setBalance(
+getBalance()+DAILY_REWARD
+);
 
 localStorage.setItem(
 "earnzood_daily_claim",
@@ -737,10 +726,12 @@ ${t.adsText}
 </p>
 
 <div class="reward">
-+$0.01
++$${AD_REWARD.toFixed(2)}
 </div>
 
-<button class="primary"
+<button
+class="primary"
+id="watchAdButton"
 onclick="watchAd()">
 
 🎬 ${t.watch}
@@ -754,17 +745,26 @@ onclick="watchAd()">
 
 <div class="stat">
 
-<span>📊 ${t.todayAds}</span>
+<span>
+📊 ${t.todayAds}
+</span>
 
-<b>${count} / ${MAX_ADS}</b>
+<b id="adCount">
+${count} / ${MAX_ADS}
+</b>
 
 </div>
 
+
 <div class="stat">
 
-<span>💰 ${t.adIncome}</span>
+<span>
+💰 ${t.adIncome}
+</span>
 
-<b>$${income.toFixed(2)}</b>
+<b id="adIncome">
+$${income.toFixed(2)}
+</b>
 
 </div>
 
@@ -778,10 +778,50 @@ onclick="watchAd()">
 
 
 /* =========================
-   TEST AD
+   ADSGRAM
 ========================= */
 
-function watchAd(){
+let AdController = null;
+
+function initAds(){
+
+try{
+
+if(
+window.Adsgram &&
+typeof window.Adsgram.init==="function"
+){
+
+AdController =
+window.Adsgram.init({
+blockId: ADSGRAM_BLOCK_ID
+});
+
+return true;
+
+}
+
+}catch(error){
+
+console.error(
+"AdsGram initialization error:",
+error
+);
+
+}
+
+return false;
+
+}
+
+
+/* =========================
+   WATCH AD
+========================= */
+
+async function watchAd(){
+
+const t=tr();
 
 const count=
 Number(
@@ -792,17 +832,144 @@ localStorage.getItem(
 
 if(count>=MAX_ADS){
 
-alert(
-"Daily ad limit reached."
-);
+alert(t.adLimit);
 
 return;
 
 }
 
-alert(
-"🎬 Test advertisement\n\nAdsGram will be connected here later."
+const button=
+document.getElementById(
+"watchAdButton"
 );
+
+if(button){
+
+button.disabled=true;
+
+button.textContent=
+"⏳ Loading...";
+
+}
+
+
+if(!AdController){
+
+initAds();
+
+}
+
+
+if(!AdController){
+
+if(button){
+
+button.disabled=false;
+
+button.textContent=
+"🎬 "+t.watch;
+
+}
+
+alert(t.adError);
+
+return;
+
+}
+
+
+try{
+
+const result=
+await AdController.show();
+
+console.log(
+"AdsGram result:",
+result
+);
+
+
+/*
+Reward ONLY when the
+rewarded advertisement
+was watched until the end.
+*/
+
+if(
+result &&
+result.done===true
+){
+
+const newCount=count+1;
+
+const oldIncome=
+Number(
+localStorage.getItem(
+"earnzood_ad_income"
+) || "0"
+);
+
+const newIncome=
+oldIncome+AD_REWARD;
+
+
+localStorage.setItem(
+"earnzood_ad_count",
+newCount
+);
+
+localStorage.setItem(
+"earnzood_ad_income",
+newIncome.toFixed(2)
+);
+
+
+setBalance(
+getBalance()+AD_REWARD
+);
+
+
+alert(
+t.adSuccess+
+"\n\n+$"+
+AD_REWARD.toFixed(2)
+);
+
+
+renderAds();
+
+}else{
+
+if(button){
+
+button.disabled=false;
+
+button.textContent=
+"🎬 "+t.watch;
+
+}
+
+}
+
+}catch(error){
+
+console.error(
+"AdsGram show error:",
+error
+);
+
+if(button){
+
+button.disabled=false;
+
+button.textContent=
+"🎬 "+t.watch;
+
+}
+
+alert(t.adError);
+
+}
 
 }
 
@@ -882,7 +1049,8 @@ onclick="renderHome()">
 ${t.wheelText}
 </p>
 
-<button class="primary"
+<button
+class="primary"
 onclick="alert('${t.coming}')">
 
 🎡
@@ -917,7 +1085,7 @@ onclick="renderHome()">
 ←
 </button>
 
-<h2>${t.invite}</h2>
+<h2>${t.invitePage}</h2>
 
 </div>
 
@@ -927,10 +1095,8 @@ onclick="renderHome()">
 👥
 </div>
 
-<h3>${t.invite}</h3>
-
 <p style="color:#9ca6b8">
-${t.inviteText}
+${t.invitePageText}
 </p>
 
 </div>
@@ -970,7 +1136,9 @@ onclick="renderHome()">
 
 <div class="stat">
 
-<span>💰 ${t.balance}</span>
+<span>
+💰 ${t.balanceLabel}
+</span>
 
 <b>
 $${getBalance().toFixed(2)}
@@ -978,11 +1146,16 @@ $${getBalance().toFixed(2)}
 
 </div>
 
+
 <div class="stat">
 
-<span>👥 ${t.invite}</span>
+<span>
+👥 ${t.referrals}
+</span>
 
-<b>0</b>
+<b>
+0
+</b>
 
 </div>
 
@@ -996,13 +1169,19 @@ $${getBalance().toFixed(2)}
 
 
 /* =========================
-   START
+   START APP
 ========================= */
+
+document.documentElement.lang=getLang();
+
+document.documentElement.dir=
+getLang()==="en" ? "ltr" : "rtl";
+
+initAds();
 
 renderHome();
 
 </script>
 
 </body>
-
-</html>
+   </html>
