@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -7,28 +7,37 @@
 
 <style>
 *{box-sizing:border-box}
+
 body{
 margin:0;
 font-family:Arial,sans-serif;
 background:#080b12;
 color:#fff;
 }
+
 .app{
 max-width:520px;
 margin:auto;
 min-height:100vh;
 padding-bottom:85px;
 }
+
 .header{
 padding:22px 18px 10px;
 display:flex;
 justify-content:space-between;
 align-items:center;
 }
+
 .logo{
 font-size:25px;
 font-weight:800;
 }
+
+.currency{
+color:#f4c542;
+}
+
 .lang{
 background:#171d2a;
 border:1px solid #283246;
@@ -36,6 +45,7 @@ color:white;
 padding:8px 11px;
 border-radius:12px;
 }
+
 .balance{
 margin:12px 18px;
 padding:24px;
@@ -44,19 +54,24 @@ background:linear-gradient(135deg,#171d2b,#101521);
 border:1px solid #273247;
 text-align:center;
 }
-.balance small{color:#9ca6b8}
+
+.balance small{
+color:#9ca6b8;
+}
+
 .amount{
 font-size:38px;
 font-weight:800;
 margin:8px 0;
 }
-.currency{color:#f4c542}
+
 .cards{
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:12px;
 padding:8px 18px;
 }
+
 .card{
 background:#111722;
 border:1px solid #222d40;
@@ -64,17 +79,28 @@ border-radius:19px;
 padding:20px 12px;
 text-align:center;
 transition:.2s;
+cursor:pointer;
 }
-.card:active{transform:scale(.97)}
+
+.card:active{
+transform:scale(.97);
+}
+
 .icon{
 font-size:30px;
 margin-bottom:9px;
 }
-.card b{display:block;margin-bottom:5px}
+
+.card b{
+display:block;
+margin-bottom:5px;
+}
+
 .card span{
 font-size:12px;
 color:#8994a8;
 }
+
 .ref{
 margin:12px 18px;
 padding:18px;
@@ -82,14 +108,17 @@ background:#111722;
 border:1px solid #222d40;
 border-radius:19px;
 }
+
 .ref-title{
 font-weight:bold;
 margin-bottom:8px;
 }
+
 .ref-info{
 color:#9ba5b6;
 font-size:13px;
 }
+
 .nav{
 position:fixed;
 bottom:0;
@@ -104,17 +133,23 @@ display:flex;
 justify-content:space-around;
 align-items:center;
 }
+
 .nav button{
 background:none;
 border:0;
 color:#8e98aa;
 font-size:12px;
+cursor:pointer;
 }
+
 .nav button div{
 font-size:22px;
 margin-bottom:3px;
 }
-.nav .active{color:#f4c542}
+
+.nav .active{
+color:#f4c542;
+}
 </style>
 </head>
 
@@ -123,178 +158,516 @@ margin-bottom:3px;
 <div class="app">
 
 <header class="header">
-<div class="logo">Earn<span class="currency">Zood</span></div>
+
+<div class="logo">
+Earn<span class="currency">Zood</span>
+</div>
 
 <select class="lang" id="language">
 <option value="fa">فارسی</option>
 <option value="en">English</option>
 <option value="ar">العربية</option>
 </select>
+
 </header>
 
+
 <section class="balance">
+
 <small id="balanceTitle">موجودی شما</small>
-<div class="amount">$0.00</div>
+
+<div class="amount" id="balanceAmount">$0.00</div>
+
 <small>USD</small>
+
 </section>
+
 
 <section class="cards">
 
-<div class="card">
+<!-- Daily Reward -->
+
+<div class="card" onclick="claimDailyReward()">
+
 <div class="icon">🎁</div>
+
 <b id="daily">پاداش روزانه</b>
-<span id="dailySub">پاداش امروز را بگیر</span>
+
+<span id="dailySub">
+پاداش امروز را بگیر
+</span>
+
 </div>
 
-<div class="card">
+
+<!-- Ads -->
+
+<div class="card" onclick="openAds()">
+
 <div class="icon">📺</div>
+
 <b id="ads">تبلیغات</b>
-<span id="adsSub">با مشاهده تبلیغ درآمد بگیر</span>
+
+<span id="adsSub">
+با مشاهده تبلیغ درآمد بگیر
+</span>
+
 </div>
 
-<div class="card">
+
+<!-- Tasks -->
+
+<div class="card" onclick="openTasks()">
+
 <div class="icon">📋</div>
+
 <b id="tasks">ماموریت‌ها</b>
-<span id="tasksSub">تسک انجام بده و پاداش بگیر</span>
+
+<span id="tasksSub">
+تسک انجام بده و پاداش بگیر
+</span>
+
 </div>
 
-<div class="card">
+
+<!-- Lucky Wheel -->
+
+<div class="card" onclick="openWheel()">
+
 <div class="icon">🎡</div>
+
 <b id="wheel">گردونه شانس</b>
-<span id="wheelSub">شانس خود را امتحان کن</span>
+
+<span id="wheelSub">
+شانس خود را امتحان کن
+</span>
+
 </div>
 
 </section>
 
+
 <section class="ref">
-<div class="ref-title" id="refTitle">👥 دعوت دوستان</div>
+
+<div class="ref-title" id="refTitle">
+👥 دعوت دوستان
+</div>
+
 <div class="ref-info" id="refInfo">
 دوستانت را دعوت کن و پاداش دریافت کن.
 </div>
+
 </section>
+
 
 <nav class="nav">
 
-<button class="active">
+<button class="active" onclick="goHome()">
+
 <div>🏠</div>
+
 <span id="home">خانه</span>
+
 </button>
 
-<button>
+
+<button onclick="openTasks()">
+
 <div>📋</div>
+
 <span id="navTasks">تسک‌ها</span>
+
 </button>
 
-<button>
+
+<button onclick="openInvite()">
+
 <div>👥</div>
+
 <span id="invite">دعوت</span>
+
 </button>
 
-<button>
+
+<button onclick="openAccount()">
+
 <div>👤</div>
+
 <span id="account">حساب</span>
+
 </button>
 
 </nav>
 
 </div>
 
+
 <script>
+
+/* =========================
+   TRANSLATIONS
+========================= */
 
 const translations={
 
 fa:{
 balance:"موجودی شما",
+
 daily:"پاداش روزانه",
 dailySub:"پاداش امروز را بگیر",
+
 ads:"تبلیغات",
 adsSub:"با مشاهده تبلیغ درآمد بگیر",
+
 tasks:"ماموریت‌ها",
 tasksSub:"تسک انجام بده و پاداش بگیر",
+
 wheel:"گردونه شانس",
 wheelSub:"شانس خود را امتحان کن",
+
 refTitle:"👥 دعوت دوستان",
 refInfo:"دوستانت را دعوت کن و پاداش دریافت کن.",
+
 home:"خانه",
 navTasks:"تسک‌ها",
 invite:"دعوت",
-account:"حساب"
+account:"حساب",
+
+already:"پاداش روزانه را قبلاً دریافت کرده‌ای.",
+success:"🎉 پاداش روزانه دریافت شد!",
+next:"دریافت بعدی تا",
+hours:"ساعت",
+minutes:"دقیقه",
+
+coming:"این بخش به‌زودی فعال می‌شود."
 },
 
 en:{
 balance:"Your Balance",
+
 daily:"Daily Reward",
 dailySub:"Claim your daily reward",
+
 ads:"Advertisements",
 adsSub:"Earn by watching ads",
+
 tasks:"Missions",
 tasksSub:"Complete tasks and earn rewards",
+
 wheel:"Lucky Wheel",
 wheelSub:"Try your luck",
+
 refTitle:"👥 Invite Friends",
 refInfo:"Invite your friends and earn rewards.",
+
 home:"Home",
 navTasks:"Tasks",
 invite:"Invite",
-account:"Account"
+account:"Account",
+
+already:"You have already claimed today's reward.",
+success:"🎉 Daily reward received!",
+next:"Next reward in",
+hours:"hours",
+minutes:"minutes",
+
+coming:"This section will be available soon."
 },
 
 ar:{
 balance:"رصيدك",
+
 daily:"المكافأة اليومية",
 dailySub:"احصل على مكافأتك اليومية",
+
 ads:"الإعلانات",
 adsSub:"اربح من مشاهدة الإعلانات",
+
 tasks:"المهام",
 tasksSub:"أنجز المهام واحصل على المكافآت",
+
 wheel:"عجلة الحظ",
 wheelSub:"جرب حظك",
+
 refTitle:"👥 دعوة الأصدقاء",
 refInfo:"ادعُ أصدقاءك واحصل على المكافآت.",
+
 home:"الرئيسية",
 navTasks:"المهام",
 invite:"دعوة",
-account:"الحساب"
+account:"الحساب",
+
+already:"لقد حصلت على مكافأة اليوم بالفعل.",
+success:"🎉 تم استلام المكافأة اليومية!",
+next:"المكافأة التالية بعد",
+hours:"ساعة",
+minutes:"دقيقة",
+
+coming:"هذا القسم سيكون متاحًا قريبًا."
 }
 
 };
+
+
+/* =========================
+   DAILY REWARD
+========================= */
+
+const DAILY_REWARD = 0.01;
+
+function getBalance(){
+
+return Number(
+localStorage.getItem("earnzood_balance") || 0
+);
+
+}
+
+
+function updateBalance(){
+
+const balance=getBalance();
+
+document.getElementById("balanceAmount").textContent=
+"$"+balance.toFixed(2);
+
+}
+
+
+function claimDailyReward(){
+
+const lang=
+localStorage.getItem("earnzood_language") || "fa";
+
+const t=translations[lang];
+
+const lastClaim=
+Number(localStorage.getItem("earnzood_daily_claim") || 0);
+
+const now=Date.now();
+
+const cooldown=24*60*60*1000;
+
+
+if(now-lastClaim<cooldown){
+
+const remaining=
+cooldown-(now-lastClaim);
+
+const hours=
+Math.floor(remaining/3600000);
+
+const minutes=
+Math.floor(
+(remaining%3600000)/60000
+);
+
+alert(
+t.already+
+"\n\n"+
+t.next+
+": "+
+hours+
+" "+
+t.hours+
+" "+
+minutes+
+" "+
+t.minutes
+);
+
+return;
+
+}
+
+
+let balance=getBalance();
+
+balance+=DAILY_REWARD;
+
+localStorage.setItem(
+"earnzood_balance",
+balance.toFixed(2)
+);
+
+localStorage.setItem(
+"earnzood_daily_claim",
+now
+);
+
+updateBalance();
+
+alert(
+t.success+
+"\n\n+$"+
+DAILY_REWARD.toFixed(2)
+);
+
+}
+
+
+/* =========================
+   OTHER BUTTONS
+========================= */
+
+function openAds(){
+
+const lang=
+localStorage.getItem("earnzood_language") || "fa";
+
+alert(translations[lang].coming);
+
+}
+
+
+function openTasks(){
+
+const lang=
+localStorage.getItem("earnzood_language") || "fa";
+
+alert(translations[lang].coming);
+
+}
+
+
+function openWheel(){
+
+const lang=
+localStorage.getItem("earnzood_language") || "fa";
+
+alert(translations[lang].coming);
+
+}
+
+
+function openInvite(){
+
+const lang=
+localStorage.getItem("earnzood_language") || "fa";
+
+alert(translations[lang].coming);
+
+}
+
+
+function openAccount(){
+
+const lang=
+localStorage.getItem("earnzood_language") || "fa";
+
+alert(translations[lang].coming);
+
+}
+
+
+function goHome(){
+
+window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+
+}
+
+
+/* =========================
+   LANGUAGE
+========================= */
 
 function setLanguage(lang){
 
 const t=translations[lang];
 
 document.documentElement.lang=lang;
-document.documentElement.dir=lang==="en"?"ltr":"rtl";
 
-document.getElementById("balanceTitle").textContent=t.balance;
-document.getElementById("daily").textContent=t.daily;
-document.getElementById("dailySub").textContent=t.dailySub;
-document.getElementById("ads").textContent=t.ads;
-document.getElementById("adsSub").textContent=t.adsSub;
-document.getElementById("tasks").textContent=t.tasks;
-document.getElementById("tasksSub").textContent=t.tasksSub;
-document.getElementById("wheel").textContent=t.wheel;
-document.getElementById("wheelSub").textContent=t.wheelSub;
-document.getElementById("refTitle").textContent=t.refTitle;
-document.getElementById("refInfo").textContent=t.refInfo;
-document.getElementById("home").textContent=t.home;
-document.getElementById("navTasks").textContent=t.navTasks;
-document.getElementById("invite").textContent=t.invite;
-document.getElementById("account").textContent=t.account;
+document.documentElement.dir=
+lang==="en"?"ltr":"rtl";
 
-localStorage.setItem("earnzood_language",lang);
+
+document.getElementById("balanceTitle").textContent=
+t.balance;
+
+document.getElementById("daily").textContent=
+t.daily;
+
+document.getElementById("dailySub").textContent=
+t.dailySub;
+
+document.getElementById("ads").textContent=
+t.ads;
+
+document.getElementById("adsSub").textContent=
+t.adsSub;
+
+document.getElementById("tasks").textContent=
+t.tasks;
+
+document.getElementById("tasksSub").textContent=
+t.tasksSub;
+
+document.getElementById("wheel").textContent=
+t.wheel;
+
+document.getElementById("wheelSub").textContent=
+t.wheelSub;
+
+document.getElementById("refTitle").textContent=
+t.refTitle;
+
+document.getElementById("refInfo").textContent=
+t.refInfo;
+
+document.getElementById("home").textContent=
+t.home;
+
+document.getElementById("navTasks").textContent=
+t.navTasks;
+
+document.getElementById("invite").textContent=
+t.invite;
+
+document.getElementById("account").textContent=
+t.account;
+
+
+localStorage.setItem(
+"earnzood_language",
+lang
+);
+
 }
 
-const saved=localStorage.getItem("earnzood_language");
 
-if(saved){
-document.getElementById("language").value=saved;
-setLanguage(saved);
+const savedLanguage=
+localStorage.getItem("earnzood_language");
+
+
+if(savedLanguage){
+
+document.getElementById("language").value=
+savedLanguage;
+
+setLanguage(savedLanguage);
+
 }
 
-document.getElementById("language").addEventListener("change",function(){
+
+document.getElementById("language")
+.addEventListener(
+"change",
+function(){
+
 setLanguage(this.value);
-});
+
+}
+);
+
+
+/* =========================
+   START
+========================= */
+
+updateBalance();
 
 </script>
 
