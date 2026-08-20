@@ -238,6 +238,48 @@ border-bottom:1px solid #222d40;
 border-bottom:0;
 }
 
+
+/* =========================
+   ADSGRAM TASK
+========================= */
+
+.task-box{
+margin-top:18px;
+padding:5px;
+border-radius:18px;
+background:#0d121c;
+}
+
+adsgram-task{
+display:block;
+
+--adsgram-task-font-size:16px;
+--adsgram-task-icon-size:48px;
+--adsgram-task-icon-title-gap:10px;
+--adsgram-task-icon-border-radius:12px;
+--adsgram-task-button-width:100%;
+}
+
+.task-reward{
+margin-top:15px;
+font-size:24px;
+font-weight:bold;
+color:#f4c542;
+}
+
+.task-note{
+font-size:12px;
+color:#8994a8;
+line-height:1.7;
+margin-top:12px;
+}
+
+.no-task{
+padding:20px;
+text-align:center;
+color:#9ca6b8;
+}
+
 </style>
 </head>
 
@@ -251,13 +293,22 @@ border-bottom:0;
    CONFIG
 ========================= */
 
+/*
+   بعداً این مقادیر را از پنل مدیریت
+   دریافت خواهیم کرد.
+*/
+
 const DAILY_REWARD = 0.01;
 
 const AD_REWARD = 0.01;
 
+const TASK_REWARD = 0.02;
+
 const MAX_ADS = 5;
 
 const ADSGRAM_BLOCK_ID = "43722";
+
+const ADSGRAM_TASK_BLOCK_ID = "task-43736";
 
 
 /* =========================
@@ -268,25 +319,33 @@ const T = {
 
 fa:{
 balance:"موجودی شما",
+
 daily:"پاداش روزانه",
 dailySub:"پاداش امروز را بگیر",
+
 ads:"تبلیغات",
 adsSub:"با مشاهده تبلیغ درآمد بگیر",
+
 tasks:"ماموریت‌ها",
 tasksSub:"تسک انجام بده و پاداش بگیر",
+
 wheel:"گردونه شانس",
 wheelSub:"شانس خود را امتحان کن",
+
 inviteTitle:"👥 دعوت دوستان",
 inviteText:"دوستانت را دعوت کن و پاداش دریافت کن.",
+
 home:"خانه",
 tasksNav:"تسک‌ها",
 invite:"دعوت",
 account:"حساب",
+
 dailySuccess:"🎉 پاداش روزانه دریافت شد!",
 already:"پاداش امروز را قبلاً دریافت کرده‌ای.",
 next:"دریافت بعدی",
 hours:"ساعت",
 minutes:"دقیقه",
+
 adsTitle:"📺 تبلیغات",
 watch:"مشاهده تبلیغ",
 adsText:"تبلیغ را تا پایان مشاهده کن و پاداش بگیر.",
@@ -295,39 +354,57 @@ adIncome:"درآمد تبلیغات",
 adLimit:"سقف تبلیغات امروز تکمیل شده است.",
 adError:"تبلیغ در حال حاضر در دسترس نیست. دوباره تلاش کن.",
 adSuccess:"🎉 پاداش تبلیغ دریافت شد!",
+
 tasksTitle:"📋 ماموریت‌ها",
 tasksText:"ماموریت‌های موجود را انجام بده و پاداش بگیر.",
+taskReward:"پاداش هر تسک",
+taskCompleted:"🎉 پاداش تسک دریافت شد!",
+taskError:"در اجرای تسک مشکلی رخ داد.",
+noTask:"در حال حاضر تسکی برای شما موجود نیست.",
+taskNote:"پس از انجام موفق تسک، پاداش به موجودی شما اضافه می‌شود.",
+
 wheelTitle:"🎡 گردونه شانس",
 wheelText:"شانس خود را امتحان کن.",
+
 invitePage:"👥 دعوت دوستان",
 invitePageText:"دوستان خود را دعوت کنید و پاداش بگیرید.",
+
 accountTitle:"👤 حساب کاربری",
 balanceLabel:"موجودی",
 referrals:"تعداد دعوت‌شده",
+
 coming:"این بخش به‌زودی فعال می‌شود."
 },
 
 en:{
 balance:"Your Balance",
+
 daily:"Daily Reward",
 dailySub:"Claim your daily reward",
+
 ads:"Advertisements",
 adsSub:"Earn by watching ads",
+
 tasks:"Missions",
 tasksSub:"Complete tasks and earn rewards",
+
 wheel:"Lucky Wheel",
 wheelSub:"Try your luck",
+
 inviteTitle:"👥 Invite Friends",
 inviteText:"Invite your friends and earn rewards.",
+
 home:"Home",
 tasksNav:"Tasks",
 invite:"Invite",
 account:"Account",
+
 dailySuccess:"🎉 Daily reward received!",
 already:"You have already claimed today's reward.",
 next:"Next reward",
 hours:"hours",
 minutes:"minutes",
+
 adsTitle:"📺 Advertisements",
 watch:"Watch Advertisement",
 adsText:"Watch the advertisement until the end and earn a reward.",
@@ -336,39 +413,57 @@ adIncome:"Ad Earnings",
 adLimit:"Today's ad limit has been reached.",
 adError:"Advertisement is currently unavailable. Try again.",
 adSuccess:"🎉 Ad reward received!",
+
 tasksTitle:"📋 Missions",
 tasksText:"Complete available missions and earn rewards.",
+taskReward:"Reward per task",
+taskCompleted:"🎉 Task reward received!",
+taskError:"There was a problem completing the task.",
+noTask:"No task is currently available for you.",
+taskNote:"After successfully completing the task, the reward will be added to your balance.",
+
 wheelTitle:"🎡 Lucky Wheel",
 wheelText:"Try your luck.",
+
 invitePage:"👥 Invite Friends",
 invitePageText:"Invite your friends and earn rewards.",
+
 accountTitle:"👤 Account",
 balanceLabel:"Balance",
 referrals:"Referrals",
+
 coming:"This section will be available soon."
 },
 
 ar:{
 balance:"رصيدك",
+
 daily:"المكافأة اليومية",
 dailySub:"احصل على مكافأتك اليومية",
+
 ads:"الإعلانات",
 adsSub:"اربح من مشاهدة الإعلانات",
+
 tasks:"المهام",
 tasksSub:"أنجز المهام واحصل على المكافآت",
+
 wheel:"عجلة الحظ",
 wheelSub:"جرب حظك",
+
 inviteTitle:"👥 دعوة الأصدقاء",
 inviteText:"ادعُ أصدقاءك واحصل على المكافآت.",
+
 home:"الرئيسية",
 tasksNav:"المهام",
 invite:"دعوة",
 account:"الحساب",
+
 dailySuccess:"🎉 تم استلام المكافأة اليومية!",
 already:"لقد حصلت على مكافأة اليوم بالفعل.",
 next:"المكافأة التالية",
 hours:"ساعة",
 minutes:"دقيقة",
+
 adsTitle:"📺 الإعلانات",
 watch:"مشاهدة الإعلان",
 adsText:"شاهد الإعلان حتى النهاية واحصل على مكافأة.",
@@ -377,15 +472,25 @@ adIncome:"أرباح الإعلانات",
 adLimit:"تم الوصول إلى حد الإعلانات اليوم.",
 adError:"الإعلان غير متاح حاليًا. حاول مرة أخرى.",
 adSuccess:"🎉 تم استلام مكافأة الإعلان!",
+
 tasksTitle:"📋 المهام",
 tasksText:"أنجز المهام المتاحة واحصل على المكافآت.",
+taskReward:"مكافأة كل مهمة",
+taskCompleted:"🎉 تم استلام مكافأة المهمة!",
+taskError:"حدثت مشكلة أثناء تنفيذ المهمة.",
+noTask:"لا توجد مهمة متاحة لك حاليًا.",
+taskNote:"بعد إكمال المهمة بنجاح، ستتم إضافة المكافأة إلى رصيدك.",
+
 wheelTitle:"🎡 عجلة الحظ",
 wheelText:"جرب حظك.",
+
 invitePage:"👥 دعوة الأصدقاء",
 invitePageText:"ادعُ أصدقاءك واحصل على المكافآت.",
+
 accountTitle:"👤 الحساب",
 balanceLabel:"الرصيد",
 referrals:"عدد المدعوين",
+
 coming:"هذا القسم سيكون متاحًا قريبًا."
 }
 
@@ -398,7 +503,9 @@ coming:"هذا القسم سيكون متاحًا قريبًا."
 
 function getLang(){
 
-return localStorage.getItem("earnzood_language") || "fa";
+return localStorage.getItem(
+"earnzood_language"
+) || "fa";
 
 }
 
@@ -778,7 +885,7 @@ $${income.toFixed(2)}
 
 
 /* =========================
-   ADSGRAM
+   ADSGRAM REWARD
 ========================= */
 
 let AdController = null;
@@ -889,12 +996,6 @@ result
 );
 
 
-/*
-Reward ONLY when the
-rewarded advertisement
-was watched until the end.
-*/
-
 if(
 result &&
 result.done===true
@@ -975,7 +1076,7 @@ alert(t.adError);
 
 
 /* =========================
-   TASKS
+   TASK PAGE
 ========================= */
 
 function renderTasks(){
@@ -997,21 +1098,168 @@ onclick="renderHome()">
 
 </div>
 
-<div class="panel center">
+
+<div class="panel">
 
 <div class="big-icon">
 📋
 </div>
 
+<div class="center">
+
+<h3>${t.tasksTitle}</h3>
+
 <p style="color:#9ca6b8">
 ${t.tasksText}
 </p>
+
+<div class="task-reward">
++$${TASK_REWARD.toFixed(2)}
+</div>
+
+<div class="task-note">
+${t.taskNote}
+</div>
+
+</div>
+
+
+<div class="task-box">
+
+<adsgram-task
+data-block-id="${ADSGRAM_TASK_BLOCK_ID}"
+data-debug="true"
+data-debug-console="false"
+class="task">
+
+</adsgram-task>
+
+</div>
 
 </div>
 
 </div>
 
 `;
+
+
+/*
+   گرفتن عنصر Task
+*/
+
+const taskElement =
+document.querySelector(
+"adsgram-task"
+);
+
+
+/*
+   اگر Task پیدا شد،
+   به رویدادهای AdsGram گوش می‌دهیم.
+*/
+
+if(taskElement){
+
+taskElement.addEventListener(
+"reward",
+function(event){
+
+console.log(
+"AdsGram Task reward:",
+event
+);
+
+
+/*
+   مهم:
+   فقط زمانی پاداش می‌دهیم که
+   AdsGram رویداد reward ارسال کند.
+*/
+
+setBalance(
+getBalance()+TASK_REWARD
+);
+
+localStorage.setItem(
+"earnzood_task_income",
+
+(
+Number(
+localStorage.getItem(
+"earnzood_task_income"
+) || "0"
+)
++
+TASK_REWARD
+).toFixed(2)
+);
+
+
+alert(
+t.taskCompleted+
+"\n\n+$"+
+TASK_REWARD.toFixed(2)
+);
+
+
+/*
+   صفحه را دوباره نمایش می‌دهیم
+   تا وضعیت جدید موجودی دیده شود.
+*/
+
+renderHome();
+
+});
+
+
+/*
+   خطای بارگذاری یا نمایش Task
+*/
+
+taskElement.addEventListener(
+"onError",
+function(event){
+
+console.error(
+"AdsGram Task error:",
+event
+);
+
+});
+
+
+/*
+   اگر هیچ Task موجود نباشد
+*/
+
+taskElement.addEventListener(
+"onBannerNotFound",
+function(event){
+
+console.log(
+"AdsGram: No task available",
+event
+);
+
+});
+
+
+/*
+   اگر Session بیش از حد طولانی شود
+*/
+
+taskElement.addEventListener(
+"onTooLongSession",
+function(event){
+
+console.log(
+"AdsGram: Task session too long",
+event
+);
+
+});
+
+}
 
 }
 
@@ -1172,10 +1420,13 @@ $${getBalance().toFixed(2)}
    START APP
 ========================= */
 
-document.documentElement.lang=getLang();
+document.documentElement.lang=
+getLang();
 
 document.documentElement.dir=
-getLang()==="en" ? "ltr" : "rtl";
+getLang()==="en"
+? "ltr"
+: "rtl";
 
 initAds();
 
