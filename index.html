@@ -1,1555 +1,1419 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-
-<title>EarnZood</title>
-
-   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-   
-   <!-- AdsGram SDK -->
-<script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-
-<style>
-
-*{
-box-sizing:border-box;
-}
-
-body{
-margin:0;
-font-family:Arial,sans-serif;
-background:#080b12;
-color:#fff;
-}
-
-button{
-font-family:inherit;
-}
-
-.app{
-max-width:520px;
-margin:auto;
-min-height:100vh;
-padding-bottom:90px;
-}
-
-.header{
-padding:20px 18px 10px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-.logo{
-font-size:25px;
-font-weight:800;
-}
-
-.gold{
-color:#f4c542;
-}
-
-.lang{
-background:#171d2a;
-border:1px solid #283246;
-color:#fff;
-padding:8px 11px;
-border-radius:12px;
-}
-
-.balance{
-margin:12px 18px;
-padding:24px;
-border-radius:22px;
-background:linear-gradient(135deg,#171d2b,#101521);
-border:1px solid #273247;
-text-align:center;
-}
-
-.balance small{
-color:#9ca6b8;
-}
-
-.amount{
-font-size:38px;
-font-weight:800;
-margin:8px 0;
-}
-
-.cards{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:12px;
-padding:8px 18px;
-}
-
-.card{
-background:#111722;
-border:1px solid #222d40;
-border-radius:19px;
-padding:20px 12px;
-text-align:center;
-cursor:pointer;
-transition:.15s;
-}
-
-.card:active{
-transform:scale(.96);
-}
-
-.icon{
-font-size:30px;
-margin-bottom:9px;
-}
-
-.card b{
-display:block;
-margin-bottom:6px;
-}
-
-.card span{
-font-size:12px;
-color:#8994a8;
-}
-
-.ref{
-margin:12px 18px;
-padding:18px;
-background:#111722;
-border:1px solid #222d40;
-border-radius:19px;
-}
-
-.ref-title{
-font-weight:bold;
-margin-bottom:8px;
-}
-
-.ref-info{
-font-size:13px;
-color:#9ba5b6;
-}
-
-.nav{
-position:fixed;
-bottom:0;
-left:50%;
-transform:translateX(-50%);
-width:100%;
-max-width:520px;
-height:72px;
-background:#0d121c;
-border-top:1px solid #222c3c;
-display:flex;
-justify-content:space-around;
-align-items:center;
-z-index:100;
-}
-
-.nav button{
-background:none;
-border:0;
-color:#8e98aa;
-font-size:12px;
-cursor:pointer;
-}
-
-.nav button div{
-font-size:22px;
-margin-bottom:3px;
-}
-
-.nav .active{
-color:#f4c542;
-}
-
-.page{
-padding:20px;
-}
-
-.page-title{
-display:flex;
-align-items:center;
-gap:12px;
-margin-bottom:20px;
-}
-
-.back{
-background:#171d2a;
-border:1px solid #283246;
-color:white;
-padding:10px 14px;
-border-radius:12px;
-font-size:18px;
-cursor:pointer;
-}
-
-.panel{
-background:#111722;
-border:1px solid #273247;
-border-radius:22px;
-padding:22px;
-margin-bottom:15px;
-}
-
-.big-icon{
-font-size:55px;
-text-align:center;
-margin-bottom:12px;
-}
-
-.center{
-text-align:center;
-}
-
-.reward{
-font-size:28px;
-font-weight:bold;
-color:#f4c542;
-margin:20px 0;
-}
-
-.primary{
-width:100%;
-padding:15px;
-border:0;
-border-radius:15px;
-background:#f4c542;
-color:#080b12;
-font-weight:bold;
-font-size:16px;
-cursor:pointer;
-}
-
-.primary:disabled{
-opacity:.5;
-cursor:not-allowed;
-}
-
-.stat{
-display:flex;
-justify-content:space-between;
-padding:10px 0;
-border-bottom:1px solid #222d40;
-}
-
-.stat:last-child{
-border-bottom:0;
-}
-
-
-/* =========================
-   ADSGRAM TASK
-========================= */
-
-.task-box{
-margin-top:18px;
-padding:5px;
-border-radius:18px;
-background:#0d121c;
-}
-
-adsgram-task{
-display:block;
-
---adsgram-task-font-size:16px;
---adsgram-task-icon-size:48px;
---adsgram-task-icon-title-gap:10px;
---adsgram-task-icon-border-radius:12px;
---adsgram-task-button-width:100%;
-}
-
-.task-reward{
-margin-top:15px;
-font-size:24px;
-font-weight:bold;
-color:#f4c542;
-}
-
-.task-note{
-font-size:12px;
-color:#8994a8;
-line-height:1.7;
-margin-top:12px;
-}
-
-.no-task{
-padding:20px;
-text-align:center;
-color:#9ca6b8;
-}
-
-</style>
-</head>
-
-<body>
-
-<div class="app" id="app"></div>
-
-<script>
-
-/* =========================
-   CONFIG
-========================= */
-
-/*
-   بعداً این مقادیر را از پنل مدیریت
-   دریافت خواهیم کرد.
-*/
-
-const DAILY_REWARD = 0.01;
-
-const AD_REWARD = 0.01;
-
-const TASK_REWARD = 0.02;
-
-const MAX_ADS = 5;
-
-const ADSGRAM_BLOCK_ID = "43722";
-
-const ADSGRAM_TASK_BLOCK_ID = "task-43736";
-
-
-/* =========================
-   TRANSLATIONS
-========================= */
-
-const T = {
-
-fa:{
-balance:"موجودی شما",
-
-daily:"پاداش روزانه",
-dailySub:"پاداش امروز را بگیر",
-
-ads:"تبلیغات",
-adsSub:"با مشاهده تبلیغ درآمد بگیر",
-
-tasks:"ماموریت‌ها",
-tasksSub:"تسک انجام بده و پاداش بگیر",
-
-wheel:"گردونه شانس",
-wheelSub:"شانس خود را امتحان کن",
-
-inviteTitle:"👥 دعوت دوستان",
-inviteText:"دوستانت را دعوت کن و پاداش دریافت کن.",
-
-home:"خانه",
-tasksNav:"تسک‌ها",
-invite:"دعوت",
-account:"حساب",
-
-dailySuccess:"🎉 پاداش روزانه دریافت شد!",
-already:"پاداش امروز را قبلاً دریافت کرده‌ای.",
-next:"دریافت بعدی",
-hours:"ساعت",
-minutes:"دقیقه",
-
-adsTitle:"📺 تبلیغات",
-watch:"مشاهده تبلیغ",
-adsText:"تبلیغ را تا پایان مشاهده کن و پاداش بگیر.",
-todayAds:"تبلیغات امروز",
-adIncome:"درآمد تبلیغات",
-adLimit:"سقف تبلیغات امروز تکمیل شده است.",
-adError:"تبلیغ در حال حاضر در دسترس نیست. دوباره تلاش کن.",
-adSuccess:"🎉 پاداش تبلیغ دریافت شد!",
-
-tasksTitle:"📋 ماموریت‌ها",
-tasksText:"ماموریت‌های موجود را انجام بده و پاداش بگیر.",
-taskReward:"پاداش هر تسک",
-taskCompleted:"🎉 پاداش تسک دریافت شد!",
-taskError:"در اجرای تسک مشکلی رخ داد.",
-noTask:"در حال حاضر تسکی برای شما موجود نیست.",
-taskNote:"پس از انجام موفق تسک، پاداش به موجودی شما اضافه می‌شود.",
-
-wheelTitle:"🎡 گردونه شانس",
-wheelText:"شانس خود را امتحان کن.",
-
-invitePage:"👥 دعوت دوستان",
-invitePageText:"دوستان خود را دعوت کنید و پاداش بگیرید.",
-
-accountTitle:"👤 حساب کاربری",
-balanceLabel:"موجودی",
-referrals:"تعداد دعوت‌شده",
-
-coming:"این بخش به‌زودی فعال می‌شود."
-},
-
-en:{
-balance:"Your Balance",
-
-daily:"Daily Reward",
-dailySub:"Claim your daily reward",
-
-ads:"Advertisements",
-adsSub:"Earn by watching ads",
-
-tasks:"Missions",
-tasksSub:"Complete tasks and earn rewards",
-
-wheel:"Lucky Wheel",
-wheelSub:"Try your luck",
-
-inviteTitle:"👥 Invite Friends",
-inviteText:"Invite your friends and earn rewards.",
-
-home:"Home",
-tasksNav:"Tasks",
-invite:"Invite",
-account:"Account",
-
-dailySuccess:"🎉 Daily reward received!",
-already:"You have already claimed today's reward.",
-next:"Next reward",
-hours:"hours",
-minutes:"minutes",
-
-adsTitle:"📺 Advertisements",
-watch:"Watch Advertisement",
-adsText:"Watch the advertisement until the end and earn a reward.",
-todayAds:"Today's Ads",
-adIncome:"Ad Earnings",
-adLimit:"Today's ad limit has been reached.",
-adError:"Advertisement is currently unavailable. Try again.",
-adSuccess:"🎉 Ad reward received!",
-
-tasksTitle:"📋 Missions",
-tasksText:"Complete available missions and earn rewards.",
-taskReward:"Reward per task",
-taskCompleted:"🎉 Task reward received!",
-taskError:"There was a problem completing the task.",
-noTask:"No task is currently available for you.",
-taskNote:"After successfully completing the task, the reward will be added to your balance.",
-
-wheelTitle:"🎡 Lucky Wheel",
-wheelText:"Try your luck.",
-
-invitePage:"👥 Invite Friends",
-invitePageText:"Invite your friends and earn rewards.",
-
-accountTitle:"👤 Account",
-balanceLabel:"Balance",
-referrals:"Referrals",
-
-coming:"This section will be available soon."
-},
-
-ar:{
-balance:"رصيدك",
-
-daily:"المكافأة اليومية",
-dailySub:"احصل على مكافأتك اليومية",
-
-ads:"الإعلانات",
-adsSub:"اربح من مشاهدة الإعلانات",
-
-tasks:"المهام",
-tasksSub:"أنجز المهام واحصل على المكافآت",
-
-wheel:"عجلة الحظ",
-wheelSub:"جرب حظك",
-
-inviteTitle:"👥 دعوة الأصدقاء",
-inviteText:"ادعُ أصدقاءك واحصل على المكافآت.",
-
-home:"الرئيسية",
-tasksNav:"المهام",
-invite:"دعوة",
-account:"الحساب",
-
-dailySuccess:"🎉 تم استلام المكافأة اليومية!",
-already:"لقد حصلت على مكافأة اليوم بالفعل.",
-next:"المكافأة التالية",
-hours:"ساعة",
-minutes:"دقيقة",
-
-adsTitle:"📺 الإعلانات",
-watch:"مشاهدة الإعلان",
-adsText:"شاهد الإعلان حتى النهاية واحصل على مكافأة.",
-todayAds:"إعلانات اليوم",
-adIncome:"أرباح الإعلانات",
-adLimit:"تم الوصول إلى حد الإعلانات اليوم.",
-adError:"الإعلان غير متاح حاليًا. حاول مرة أخرى.",
-adSuccess:"🎉 تم استلام مكافأة الإعلان!",
-
-tasksTitle:"📋 المهام",
-tasksText:"أنجز المهام المتاحة واحصل على المكافآت.",
-taskReward:"مكافأة كل مهمة",
-taskCompleted:"🎉 تم استلام مكافأة المهمة!",
-taskError:"حدثت مشكلة أثناء تنفيذ المهمة.",
-noTask:"لا توجد مهمة متاحة لك حاليًا.",
-taskNote:"بعد إكمال المهمة بنجاح، ستتم إضافة المكافأة إلى رصيدك.",
-
-wheelTitle:"🎡 عجلة الحظ",
-wheelText:"جرب حظك.",
-
-invitePage:"👥 دعوة الأصدقاء",
-invitePageText:"ادعُ أصدقاءك واحصل على المكافآت.",
-
-accountTitle:"👤 الحساب",
-balanceLabel:"الرصيد",
-referrals:"عدد المدعوين",
-
-coming:"هذا القسم سيكون متاحًا قريبًا."
-}
-
-};
-
-
-/* =========================
-   LANGUAGE
-========================= */
-
-function getLang(){
-
-return localStorage.getItem(
-"earnzood_language"
-) || "fa";
-
-}
-
-function tr(){
-
-return T[getLang()];
-
-}
-
-function setLang(value){
-
-localStorage.setItem(
-"earnzood_language",
-value
-);
-
-document.documentElement.lang=value;
-
-document.documentElement.dir=
-value==="en" ? "ltr" : "rtl";
-
-renderHome();
-
-}
-
-
-/* =========================
-   BALANCE
-========================= */
-
-function getBalance(){
-
-return Number(
-localStorage.getItem(
-"earnzood_balance"
-) || "0"
-);
-
-}
-
-function setBalance(value){
-
-localStorage.setItem(
-"earnzood_balance",
-Number(value).toFixed(2)
-);
-
-}
-
-
-/* =========================
-   HOME
-========================= */
-
-function renderHome(){
-
-const t=tr();
-
-document.getElementById("app").innerHTML=`
-
-<header class="header">
-
-<div class="logo">
-Earn<span class="gold">Zood</span>
-</div>
-
-<select class="lang"
-onchange="setLang(this.value)">
-
-<option value="fa"
-${getLang()==="fa"?"selected":""}>
-فارسی
-</option>
-
-<option value="en"
-${getLang()==="en"?"selected":""}>
-English
-</option>
-
-<option value="ar"
-${getLang()==="ar"?"selected":""}>
-العربية
-</option>
-
-</select>
-
-</header>
-
-
-<section class="balance">
-
-<small>${t.balance}</small>
-
-<div class="amount">
-$${getBalance().toFixed(2)}
-</div>
-
-<small>USD</small>
-
-</section>
-
-
-<section class="cards">
-
-
-<div class="card"
-onclick="claimDaily()">
-
-<div class="icon">🎁</div>
-
-<b>${t.daily}</b>
-
-<span>${t.dailySub}</span>
-
-</div>
-
-
-<div class="card"
-onclick="renderAds()">
-
-<div class="icon">📺</div>
-
-<b>${t.ads}</b>
-
-<span>${t.adsSub}</span>
-
-</div>
-
-
-<div class="card"
-onclick="renderTasks()">
-
-<div class="icon">📋</div>
-
-<b>${t.tasks}</b>
-
-<span>${t.tasksSub}</span>
-
-</div>
-
-
-<div class="card"
-onclick="renderWheel()">
-
-<div class="icon">🎡</div>
-
-<b>${t.wheel}</b>
-
-<span>${t.wheelSub}</span>
-
-</div>
-
-</section>
-
-
-<section class="ref">
-
-<div class="ref-title">
-${t.inviteTitle}
-</div>
-
-<div class="ref-info">
-${t.inviteText}
-</div>
-
-</section>
-
-
-<nav class="nav">
-
-<button class="active"
-onclick="renderHome()">
-
-<div>🏠</div>
-<span>${t.home}</span>
-
-</button>
-
-<button
-onclick="renderTasks()">
-
-<div>📋</div>
-<span>${t.tasksNav}</span>
-
-</button>
-
-<button
-onclick="renderInvite()">
-
-<div>👥</div>
-<span>${t.invite}</span>
-
-</button>
-
-<button
-onclick="renderAccount()">
-
-<div>👤</div>
-<span>${t.account}</span>
-
-</button>
-
-</nav>
-
-`;
-
-}
-
-
-/* =========================
-   DAILY REWARD
-========================= */
-
-function claimDaily(){
-
-const t=tr();
-
-const last=
-Number(
-localStorage.getItem(
-"earnzood_daily_claim"
-) || "0"
-);
-
-const now=Date.now();
-
-const cooldown=
-24*60*60*1000;
-
-if(now-last<cooldown){
-
-const remaining=
-cooldown-(now-last);
-
-const h=
-Math.floor(
-remaining/3600000
-);
-
-const m=
-Math.floor(
-(remaining%3600000)/60000
-);
-
-alert(
-t.already+
-"\n\n"+
-t.next+": "+
-h+" "+t.hours+" "+
-m+" "+t.minutes
-);
-
-return;
-
-}
-
-setBalance(
-getBalance()+DAILY_REWARD
-);
-
-localStorage.setItem(
-"earnzood_daily_claim",
-now
-);
-
-alert(
-t.dailySuccess+
-"\n\n+$"+
-DAILY_REWARD.toFixed(2)
-);
-
-renderHome();
-
-}
-
-
-/* =========================
-   ADS PAGE
-========================= */
-
-function renderAds(){
-
-const t=tr();
-
-const count=
-Number(
-localStorage.getItem(
-"earnzood_ad_count"
-) || "0"
-);
-
-const income=
-Number(
-localStorage.getItem(
-"earnzood_ad_income"
-) || "0"
-);
-
-document.getElementById("app").innerHTML=`
-
-<div class="page">
-
-<div class="page-title">
-
-<button class="back"
-onclick="renderHome()">
-←
-</button>
-
-<h2>${t.adsTitle}</h2>
-
-</div>
-
-
-<div class="panel center">
-
-<div class="big-icon">
-📺
-</div>
-
-<h3>${t.watch}</h3>
-
-<p style="color:#9ca6b8">
-${t.adsText}
-</p>
-
-<div class="reward">
-+$${AD_REWARD.toFixed(2)}
-</div>
-
-<button
-class="primary"
-id="watchAdButton"
-onclick="watchAd()">
-
-🎬 ${t.watch}
-
-</button>
-
-</div>
-
-
-<div class="panel">
-
-<div class="stat">
-
-<span>
-📊 ${t.todayAds}
-</span>
-
-<b id="adCount">
-${count} / ${MAX_ADS}
-</b>
-
-</div>
-
-
-<div class="stat">
-
-<span>
-💰 ${t.adIncome}
-</span>
-
-<b id="adIncome">
-$${income.toFixed(2)}
-</b>
-
-</div>
-
-</div>
-
-</div>
-
-`;
-
-}
-
-
-/* =========================
-   ADSGRAM REWARD
-========================= */
-
-let AdController = null;
-
-function initAds(){
-
-try{
-
-if(
-window.Adsgram &&
-typeof window.Adsgram.init==="function"
-){
-
-AdController =
-window.Adsgram.init({
-blockId: ADSGRAM_BLOCK_ID
-});
-
-return true;
-
-}
-
-}catch(error){
-
-console.error(
-"AdsGram initialization error:",
-error
-);
-
-}
-
-return false;
-
-}
-
-
-/* =========================
-   WATCH AD
-========================= */
-
-async function watchAd(){
-
-const t=tr();
-
-const count=
-Number(
-localStorage.getItem(
-"earnzood_ad_count"
-) || "0"
-);
-
-if(count>=MAX_ADS){
-
-alert(t.adLimit);
-
-return;
-
-}
-
-const button=
-document.getElementById(
-"watchAdButton"
-);
-
-if(button){
-
-button.disabled=true;
-
-button.textContent=
-"⏳ Loading...";
-
-}
-
-
-if(!AdController){
-
-initAds();
-
-}
-
-
-if(!AdController){
-
-if(button){
-
-button.disabled=false;
-
-button.textContent=
-"🎬 "+t.watch;
-
-}
-
-alert(t.adError);
-
-return;
-
-}
-
-
-try{
-
-const result=
-await AdController.show();
-
-console.log(
-"AdsGram result:",
-result
-);
-
-
-if(
-result &&
-result.done===true
-){
-
-const newCount=count+1;
-
-const oldIncome=
-Number(
-localStorage.getItem(
-"earnzood_ad_income"
-) || "0"
-);
-
-const newIncome=
-oldIncome+AD_REWARD;
-
-
-localStorage.setItem(
-"earnzood_ad_count",
-newCount
-);
-
-localStorage.setItem(
-"earnzood_ad_income",
-newIncome.toFixed(2)
-);
-
-
-setBalance(
-getBalance()+AD_REWARD
-);
-
-
-alert(
-t.adSuccess+
-"\n\n+$"+
-AD_REWARD.toFixed(2)
-);
-
-
-renderAds();
-
-}else{
-
-if(button){
-
-button.disabled=false;
-
-button.textContent=
-"🎬 "+t.watch;
-
-}
-
-}
-
-}catch(error){
-
-console.error(
-"AdsGram show error:",
-error
-);
-
-if(button){
-
-button.disabled=false;
-
-button.textContent=
-"🎬 "+t.watch;
-
-}
-
-alert(t.adError);
-
-}
-
-}
-
-
-/* =========================
-   TASK PAGE
-========================= */
-
-function renderTasks(){
-
-const t=tr();
-
-document.getElementById("app").innerHTML=`
-
-<div class="page">
-
-<div class="page-title">
-
-<button class="back"
-onclick="renderHome()">
-←
-</button>
-
-<h2>${t.tasksTitle}</h2>
-
-</div>
-
-
-<div class="panel">
-
-<div class="big-icon">
-📋
-</div>
-
-<div class="center">
-
-<h3>${t.tasksTitle}</h3>
-
-<p style="color:#9ca6b8">
-${t.tasksText}
-</p>
-
-<div class="task-reward">
-+$${TASK_REWARD.toFixed(2)}
-</div>
-
-<div class="task-note">
-${t.taskNote}
-</div>
-
-</div>
-
-
-<div class="task-box">
-
-<adsgram-task
-data-block-id="${ADSGRAM_TASK_BLOCK_ID}"
-data-debug="true"
-data-debug-console="false"
-class="task">
-
-</adsgram-task>
-
-</div>
-
-</div>
-
-</div>
-
-`;
-
-
-/*
-   گرفتن عنصر Task
-*/
-
-const taskElement =
-document.querySelector(
-"adsgram-task"
-);
-
-
-/*
-   اگر Task پیدا شد،
-   به رویدادهای AdsGram گوش می‌دهیم.
-*/
-
-if(taskElement){
-
-taskElement.addEventListener(
-"reward",
-function(event){
-
-console.log(
-"AdsGram Task reward:",
-event
-);
-
-
-/*
-   مهم:
-   فقط زمانی پاداش می‌دهیم که
-   AdsGram رویداد reward ارسال کند.
-*/
-
-setBalance(
-getBalance()+TASK_REWARD
-);
-
-localStorage.setItem(
-"earnzood_task_income",
-
-(
-Number(
-localStorage.getItem(
-"earnzood_task_income"
-) || "0"
-)
-+
-TASK_REWARD
-).toFixed(2)
-);
-
-
-alert(
-t.taskCompleted+
-"\n\n+$"+
-TASK_REWARD.toFixed(2)
-);
-
-
-/*
-   صفحه را دوباره نمایش می‌دهیم
-   تا وضعیت جدید موجودی دیده شود.
-*/
-
-renderHome();
-
-});
-
-
-/*
-   خطای بارگذاری یا نمایش Task
-*/
-
-taskElement.addEventListener(
-"onError",
-function(event){
-
-console.error(
-"AdsGram Task error:",
-event
-);
-
-});
-
-
-/*
-   اگر هیچ Task موجود نباشد
-*/
-
-taskElement.addEventListener(
-"onBannerNotFound",
-function(event){
-
-console.log(
-"AdsGram: No task available",
-event
-);
-
-});
-
-
-/*
-   اگر Session بیش از حد طولانی شود
-*/
-
-taskElement.addEventListener(
-"onTooLongSession",
-function(event){
-
-console.log(
-"AdsGram: Task session too long",
-event
-);
-
-});
-
-}
-
-}
-
-
-/* =========================
-   WHEEL
-========================= */
-
-function renderWheel(){
-
-const t=tr();
-
-document.getElementById("app").innerHTML=`
-
-<div class="page">
-
-<div class="page-title">
-
-<button class="back"
-onclick="renderHome()">
-←
-</button>
-
-<h2>${t.wheelTitle}</h2>
-
-</div>
-
-<div class="panel center">
-
-<div class="big-icon">
-🎡
-</div>
-
-<p style="color:#9ca6b8">
-${t.wheelText}
-</p>
-
-<button
-class="primary"
-onclick="alert('${t.coming}')">
-
-🎡
-
-</button>
-
-</div>
-
-</div>
-
-`;
-
-}
-
-
-/* =========================
-   INVITE
-========================= */
-
-   function renderInvite(){
-
-const t=tr();
-
-const user=window.Telegram?.WebApp?.initDataUnsafe?.user;
-
-if(!user){
-
-alert("لطفاً Mini App را از داخل تلگرام باز کنید.");
-
-return;
-
-}
-
-const referralLink=
-"https://t.me/Earnzood_bot?start="+user.id;
-
-document.getElementById("app").innerHTML=`
-
-<div class="page">
-
-<div class="page-title">
-
-<button class="back"
-onclick="renderHome()">
-←
-</button>
-
-<h2>${t.invitePage}</h2>
-
-</div>
-
-<div class="panel center">
-
-<div class="big-icon">
-👥
-</div>
-
-<h3>
-دعوت دوستان
-</h3>
-
-<p style="color:#9ca6b8">
-دوستانت را دعوت کن و با هر دعوت موفق پاداش بگیر.
-</p>
-
-<input
-id="referralInput"
-value="${referralLink}"
-readonly
-style="
-width:100%;
-padding:13px;
-border-radius:12px;
-border:1px solid #283246;
-background:#080b12;
-color:white;
-margin-top:15px;
-direction:ltr;
-">
-
-<button
-class="primary"
-style="margin-top:12px"
-onclick="copyReferral()">
-
-📋 کپی لینک دعوت
-
-</button>
-
-<button
-class="primary"
-style="margin-top:10px"
-onclick="shareReferral()">
-
-📤 دعوت دوستان
-
-</button>
-
-</div>
-
-</div>
-
-`;
-
-   }
-
-   function copyReferral(){
-
-const input=
-document.getElementById("referralInput");
-
-navigator.clipboard.writeText(
-input.value
-);
-
-alert("✅ لینک دعوت کپی شد!");
-
-}
-
-
-function shareReferral(){
-
-const input=
-document.getElementById("referralInput");
-
-const link=input.value;
-
-const shareUrl=
-"https://t.me/share/url?url="+
-encodeURIComponent(link)+
-"&text="+
-encodeURIComponent(
-"🎁 با من در EarnZood کسب درآمد کن!"
-);
-
-window.Telegram.WebApp.openTelegramLink(
-shareUrl
-);
-
-   }
-<div class="page">
-
-<div class="page-title">
-
-<button class="back"
-onclick="renderHome()">
-←
-</button>
-
-<h2>${t.invitePage}</h2>
-
-</div>
-
-<div class="panel center">
-
-<div class="big-icon">
-👥
-</div>
-
-<p style="color:#9ca6b8">
-${t.invitePageText}
-</p>
-
-</div>
-
-</div>
-
-`;
-
-}
-
-
-/* =========================
-   ACCOUNT
-========================= */
-
-function renderAccount(){
-
-const t=tr();
-
-document.getElementById("app").innerHTML=`
-
-<div class="page">
-
-<div class="page-title">
-
-<button class="back"
-onclick="renderHome()">
-←
-</button>
-
-<h2>${t.accountTitle}</h2>
-
-</div>
-
-
-<div class="panel">
-
-<div class="stat">
-
-<span>
-💰 ${t.balanceLabel}
-</span>
-
-<b>
-$${getBalance().toFixed(2)}
-</b>
-
-</div>
-
-
-<div class="stat">
-
-<span>
-👥 ${t.referrals}
-</span>
-
-<b>
-0
-</b>
-
-</div>
-
-</div>
-
-</div>
-
-`;
-
-}
-
-
-/* =========================
-   START APP
-========================= */
-
-document.documentElement.lang=
-getLang();
-
-document.documentElement.dir=
-getLang()==="en"
-? "ltr"
-: "rtl";
-
-initAds();
-
-renderHome();
-
-</script>
-
-</body>
-  </html>
+<!DOCTYPE html>  <html lang="fa" dir="rtl">  <head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width,initial-scale=1.0">  <title>EarnZood</title>  <!-- AdsGram SDK -->  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>  <style>  
+  
+*{  
+box-sizing:border-box;  
+}  
+  
+body{  
+margin:0;  
+font-family:Arial,sans-serif;  
+background:#080b12;  
+color:#fff;  
+}  
+  
+button{  
+font-family:inherit;  
+}  
+  
+.app{  
+max-width:520px;  
+margin:auto;  
+min-height:100vh;  
+padding-bottom:90px;  
+}  
+  
+.header{  
+padding:20px 18px 10px;  
+display:flex;  
+justify-content:space-between;  
+align-items:center;  
+}  
+  
+.logo{  
+font-size:25px;  
+font-weight:800;  
+}  
+  
+.gold{  
+color:#f4c542;  
+}  
+  
+.lang{  
+background:#171d2a;  
+border:1px solid #283246;  
+color:#fff;  
+padding:8px 11px;  
+border-radius:12px;  
+}  
+  
+.balance{  
+margin:12px 18px;  
+padding:24px;  
+border-radius:22px;  
+background:linear-gradient(135deg,#171d2b,#101521);  
+border:1px solid #273247;  
+text-align:center;  
+}  
+  
+.balance small{  
+color:#9ca6b8;  
+}  
+  
+.amount{  
+font-size:38px;  
+font-weight:800;  
+margin:8px 0;  
+}  
+  
+.cards{  
+display:grid;  
+grid-template-columns:1fr 1fr;  
+gap:12px;  
+padding:8px 18px;  
+}  
+  
+.card{  
+background:#111722;  
+border:1px solid #222d40;  
+border-radius:19px;  
+padding:20px 12px;  
+text-align:center;  
+cursor:pointer;  
+transition:.15s;  
+}  
+  
+.card:active{  
+transform:scale(.96);  
+}  
+  
+.icon{  
+font-size:30px;  
+margin-bottom:9px;  
+}  
+  
+.card b{  
+display:block;  
+margin-bottom:6px;  
+}  
+  
+.card span{  
+font-size:12px;  
+color:#8994a8;  
+}  
+  
+.ref{  
+margin:12px 18px;  
+padding:18px;  
+background:#111722;  
+border:1px solid #222d40;  
+border-radius:19px;  
+}  
+  
+.ref-title{  
+font-weight:bold;  
+margin-bottom:8px;  
+}  
+  
+.ref-info{  
+font-size:13px;  
+color:#9ba5b6;  
+}  
+  
+.nav{  
+position:fixed;  
+bottom:0;  
+left:50%;  
+transform:translateX(-50%);  
+width:100%;  
+max-width:520px;  
+height:72px;  
+background:#0d121c;  
+border-top:1px solid #222c3c;  
+display:flex;  
+justify-content:space-around;  
+align-items:center;  
+z-index:100;  
+}  
+  
+.nav button{  
+background:none;  
+border:0;  
+color:#8e98aa;  
+font-size:12px;  
+cursor:pointer;  
+}  
+  
+.nav button div{  
+font-size:22px;  
+margin-bottom:3px;  
+}  
+  
+.nav .active{  
+color:#f4c542;  
+}  
+  
+.page{  
+padding:20px;  
+}  
+  
+.page-title{  
+display:flex;  
+align-items:center;  
+gap:12px;  
+margin-bottom:20px;  
+}  
+  
+.back{  
+background:#171d2a;  
+border:1px solid #283246;  
+color:white;  
+padding:10px 14px;  
+border-radius:12px;  
+font-size:18px;  
+cursor:pointer;  
+}  
+  
+.panel{  
+background:#111722;  
+border:1px solid #273247;  
+border-radius:22px;  
+padding:22px;  
+margin-bottom:15px;  
+}  
+  
+.big-icon{  
+font-size:55px;  
+text-align:center;  
+margin-bottom:12px;  
+}  
+  
+.center{  
+text-align:center;  
+}  
+  
+.reward{  
+font-size:28px;  
+font-weight:bold;  
+color:#f4c542;  
+margin:20px 0;  
+}  
+  
+.primary{  
+width:100%;  
+padding:15px;  
+border:0;  
+border-radius:15px;  
+background:#f4c542;  
+color:#080b12;  
+font-weight:bold;  
+font-size:16px;  
+cursor:pointer;  
+}  
+  
+.primary:disabled{  
+opacity:.5;  
+cursor:not-allowed;  
+}  
+  
+.stat{  
+display:flex;  
+justify-content:space-between;  
+padding:10px 0;  
+border-bottom:1px solid #222d40;  
+}  
+  
+.stat:last-child{  
+border-bottom:0;  
+}  
+  
+  
+/* =========================  
+   ADSGRAM TASK  
+========================= */  
+  
+.task-box{  
+margin-top:18px;  
+padding:5px;  
+border-radius:18px;  
+background:#0d121c;  
+}  
+  
+adsgram-task{  
+display:block;  
+  
+--adsgram-task-font-size:16px;  
+--adsgram-task-icon-size:48px;  
+--adsgram-task-icon-title-gap:10px;  
+--adsgram-task-icon-border-radius:12px;  
+--adsgram-task-button-width:100%;  
+}  
+  
+.task-reward{  
+margin-top:15px;  
+font-size:24px;  
+font-weight:bold;  
+color:#f4c542;  
+}  
+  
+.task-note{  
+font-size:12px;  
+color:#8994a8;  
+line-height:1.7;  
+margin-top:12px;  
+}  
+  
+.no-task{  
+padding:20px;  
+text-align:center;  
+color:#9ca6b8;  
+}  
+  
+</style>  </head>  <body>  <div class="app" id="app"></div>  <script>  
+  
+/* =========================  
+   CONFIG  
+========================= */  
+  
+/*  
+   بعداً این مقادیر را از پنل مدیریت  
+   دریافت خواهیم کرد.  
+*/  
+  
+const DAILY_REWARD = 0.01;  
+  
+const AD_REWARD = 0.01;  
+  
+const TASK_REWARD = 0.02;  
+  
+const MAX_ADS = 5;  
+  
+const ADSGRAM_BLOCK_ID = "43722";  
+  
+const ADSGRAM_TASK_BLOCK_ID = "task-43736";  
+  
+  
+/* =========================  
+   TRANSLATIONS  
+========================= */  
+  
+const T = {  
+  
+fa:{  
+balance:"موجودی شما",  
+  
+daily:"پاداش روزانه",  
+dailySub:"پاداش امروز را بگیر",  
+  
+ads:"تبلیغات",  
+adsSub:"با مشاهده تبلیغ درآمد بگیر",  
+  
+tasks:"ماموریت‌ها",  
+tasksSub:"تسک انجام بده و پاداش بگیر",  
+  
+wheel:"گردونه شانس",  
+wheelSub:"شانس خود را امتحان کن",  
+  
+inviteTitle:"👥 دعوت دوستان",  
+inviteText:"دوستانت را دعوت کن و پاداش دریافت کن.",  
+  
+home:"خانه",  
+tasksNav:"تسک‌ها",  
+invite:"دعوت",  
+account:"حساب",  
+  
+dailySuccess:"🎉 پاداش روزانه دریافت شد!",  
+already:"پاداش امروز را قبلاً دریافت کرده‌ای.",  
+next:"دریافت بعدی",  
+hours:"ساعت",  
+minutes:"دقیقه",  
+  
+adsTitle:"📺 تبلیغات",  
+watch:"مشاهده تبلیغ",  
+adsText:"تبلیغ را تا پایان مشاهده کن و پاداش بگیر.",  
+todayAds:"تبلیغات امروز",  
+adIncome:"درآمد تبلیغات",  
+adLimit:"سقف تبلیغات امروز تکمیل شده است.",  
+adError:"تبلیغ در حال حاضر در دسترس نیست. دوباره تلاش کن.",  
+adSuccess:"🎉 پاداش تبلیغ دریافت شد!",  
+  
+tasksTitle:"📋 ماموریت‌ها",  
+tasksText:"ماموریت‌های موجود را انجام بده و پاداش بگیر.",  
+taskReward:"پاداش هر تسک",  
+taskCompleted:"🎉 پاداش تسک دریافت شد!",  
+taskError:"در اجرای تسک مشکلی رخ داد.",  
+noTask:"در حال حاضر تسکی برای شما موجود نیست.",  
+taskNote:"پس از انجام موفق تسک، پاداش به موجودی شما اضافه می‌شود.",  
+  
+wheelTitle:"🎡 گردونه شانس",  
+wheelText:"شانس خود را امتحان کن.",  
+  
+invitePage:"👥 دعوت دوستان",  
+invitePageText:"دوستان خود را دعوت کنید و پاداش بگیرید.",  
+  
+accountTitle:"👤 حساب کاربری",  
+balanceLabel:"موجودی",  
+referrals:"تعداد دعوت‌شده",  
+  
+coming:"این بخش به‌زودی فعال می‌شود."  
+},  
+  
+en:{  
+balance:"Your Balance",  
+  
+daily:"Daily Reward",  
+dailySub:"Claim your daily reward",  
+  
+ads:"Advertisements",  
+adsSub:"Earn by watching ads",  
+  
+tasks:"Missions",  
+tasksSub:"Complete tasks and earn rewards",  
+  
+wheel:"Lucky Wheel",  
+wheelSub:"Try your luck",  
+  
+inviteTitle:"👥 Invite Friends",  
+inviteText:"Invite your friends and earn rewards.",  
+  
+home:"Home",  
+tasksNav:"Tasks",  
+invite:"Invite",  
+account:"Account",  
+  
+dailySuccess:"🎉 Daily reward received!",  
+already:"You have already claimed today's reward.",  
+next:"Next reward",  
+hours:"hours",  
+minutes:"minutes",  
+  
+adsTitle:"📺 Advertisements",  
+watch:"Watch Advertisement",  
+adsText:"Watch the advertisement until the end and earn a reward.",  
+todayAds:"Today's Ads",  
+adIncome:"Ad Earnings",  
+adLimit:"Today's ad limit has been reached.",  
+adError:"Advertisement is currently unavailable. Try again.",  
+adSuccess:"🎉 Ad reward received!",  
+  
+tasksTitle:"📋 Missions",  
+tasksText:"Complete available missions and earn rewards.",  
+taskReward:"Reward per task",  
+taskCompleted:"🎉 Task reward received!",  
+taskError:"There was a problem completing the task.",  
+noTask:"No task is currently available for you.",  
+taskNote:"After successfully completing the task, the reward will be added to your balance.",  
+  
+wheelTitle:"🎡 Lucky Wheel",  
+wheelText:"Try your luck.",  
+  
+invitePage:"👥 Invite Friends",  
+invitePageText:"Invite your friends and earn rewards.",  
+  
+accountTitle:"👤 Account",  
+balanceLabel:"Balance",  
+referrals:"Referrals",  
+  
+coming:"This section will be available soon."  
+},  
+  
+ar:{  
+balance:"رصيدك",  
+  
+daily:"المكافأة اليومية",  
+dailySub:"احصل على مكافأتك اليومية",  
+  
+ads:"الإعلانات",  
+adsSub:"اربح من مشاهدة الإعلانات",  
+  
+tasks:"المهام",  
+tasksSub:"أنجز المهام واحصل على المكافآت",  
+  
+wheel:"عجلة الحظ",  
+wheelSub:"جرب حظك",  
+  
+inviteTitle:"👥 دعوة الأصدقاء",  
+inviteText:"ادعُ أصدقاءك واحصل على المكافآت.",  
+  
+home:"الرئيسية",  
+tasksNav:"المهام",  
+invite:"دعوة",  
+account:"الحساب",  
+  
+dailySuccess:"🎉 تم استلام المكافأة اليومية!",  
+already:"لقد حصلت على مكافأة اليوم بالفعل.",  
+next:"المكافأة التالية",  
+hours:"ساعة",  
+minutes:"دقيقة",  
+  
+adsTitle:"📺 الإعلانات",  
+watch:"مشاهدة الإعلان",  
+adsText:"شاهد الإعلان حتى النهاية واحصل على مكافأة.",  
+todayAds:"إعلانات اليوم",  
+adIncome:"أرباح الإعلانات",  
+adLimit:"تم الوصول إلى حد الإعلانات اليوم.",  
+adError:"الإعلان غير متاح حاليًا. حاول مرة أخرى.",  
+adSuccess:"🎉 تم استلام مكافأة الإعلان!",  
+  
+tasksTitle:"📋 المهام",  
+tasksText:"أنجز المهام المتاحة واحصل على المكافآت.",  
+taskReward:"مكافأة كل مهمة",  
+taskCompleted:"🎉 تم استلام مكافأة المهمة!",  
+taskError:"حدثت مشكلة أثناء تنفيذ المهمة.",  
+noTask:"لا توجد مهمة متاحة لك حاليًا.",  
+taskNote:"بعد إكمال المهمة بنجاح، ستتم إضافة المكافأة إلى رصيدك.",  
+  
+wheelTitle:"🎡 عجلة الحظ",  
+wheelText:"جرب حظك.",  
+  
+invitePage:"👥 دعوة الأصدقاء",  
+invitePageText:"ادعُ أصدقاءك واحصل على المكافآت.",  
+  
+accountTitle:"👤 الحساب",  
+balanceLabel:"الرصيد",  
+referrals:"عدد المدعوين",  
+  
+coming:"هذا القسم سيكون متاحًا قريبًا."  
+}  
+  
+};  
+  
+  
+/* =========================  
+   LANGUAGE  
+========================= */  
+  
+function getLang(){  
+  
+return localStorage.getItem(  
+"earnzood_language"  
+) || "fa";  
+  
+}  
+  
+function tr(){  
+  
+return T[getLang()];  
+  
+}  
+  
+function setLang(value){  
+  
+localStorage.setItem(  
+"earnzood_language",  
+value  
+);  
+  
+document.documentElement.lang=value;  
+  
+document.documentElement.dir=  
+value==="en" ? "ltr" : "rtl";  
+  
+renderHome();  
+  
+}  
+  
+  
+/* =========================  
+   BALANCE  
+========================= */  
+  
+function getBalance(){  
+  
+return Number(  
+localStorage.getItem(  
+"earnzood_balance"  
+) || "0"  
+);  
+  
+}  
+  
+function setBalance(value){  
+  
+localStorage.setItem(  
+"earnzood_balance",  
+Number(value).toFixed(2)  
+);  
+  
+}  
+  
+  
+/* =========================  
+   HOME  
+========================= */  
+  
+function renderHome(){  
+  
+const t=tr();  
+  
+document.getElementById("app").innerHTML=`  
+  
+<header class="header">  
+  
+<div class="logo">  
+Earn<span class="gold">Zood</span>  
+</div>  
+  
+<select class="lang"  
+onchange="setLang(this.value)">  
+  
+<option value="fa"  
+${getLang()==="fa"?"selected":""}>  
+فارسی  
+</option>  
+  
+<option value="en"  
+${getLang()==="en"?"selected":""}>  
+English  
+</option>  
+  
+<option value="ar"  
+${getLang()==="ar"?"selected":""}>  
+العربية  
+</option>  
+  
+</select>  
+  
+</header>  
+  
+  
+<section class="balance">  
+  
+<small>${t.balance}</small>  
+  
+<div class="amount">  
+$${getBalance().toFixed(2)}  
+</div>  
+  
+<small>USD</small>  
+  
+</section>  
+  
+  
+<section class="cards">  
+  
+  
+<div class="card"  
+onclick="claimDaily()">  
+  
+<div class="icon">🎁</div>  
+  
+<b>${t.daily}</b>  
+  
+<span>${t.dailySub}</span>  
+  
+</div>  
+  
+  
+<div class="card"  
+onclick="renderAds()">  
+  
+<div class="icon">📺</div>  
+  
+<b>${t.ads}</b>  
+  
+<span>${t.adsSub}</span>  
+  
+</div>  
+  
+  
+<div class="card"  
+onclick="renderTasks()">  
+  
+<div class="icon">📋</div>  
+  
+<b>${t.tasks}</b>  
+  
+<span>${t.tasksSub}</span>  
+  
+</div>  
+  
+  
+<div class="card"  
+onclick="renderWheel()">  
+  
+<div class="icon">🎡</div>  
+  
+<b>${t.wheel}</b>  
+  
+<span>${t.wheelSub}</span>  
+  
+</div>  
+  
+</section>  
+  
+  
+<section class="ref">  
+  
+<div class="ref-title">  
+${t.inviteTitle}  
+</div>  
+  
+<div class="ref-info">  
+${t.inviteText}  
+</div>  
+  
+</section>  
+  
+  
+<nav class="nav">  
+  
+<button class="active"  
+onclick="renderHome()">  
+  
+<div>🏠</div>  
+<span>${t.home}</span>  
+  
+</button>  
+  
+<button  
+onclick="renderTasks()">  
+  
+<div>📋</div>  
+<span>${t.tasksNav}</span>  
+  
+</button>  
+  
+<button  
+onclick="renderInvite()">  
+  
+<div>👥</div>  
+<span>${t.invite}</span>  
+  
+</button>  
+  
+<button  
+onclick="renderAccount()">  
+  
+<div>👤</div>  
+<span>${t.account}</span>  
+  
+</button>  
+  
+</nav>  
+  
+`;  
+  
+}  
+  
+  
+/* =========================  
+   DAILY REWARD  
+========================= */  
+  
+function claimDaily(){  
+  
+const t=tr();  
+  
+const last=  
+Number(  
+localStorage.getItem(  
+"earnzood_daily_claim"  
+) || "0"  
+);  
+  
+const now=Date.now();  
+  
+const cooldown=  
+24*60*60*1000;  
+  
+if(now-last<cooldown){  
+  
+const remaining=  
+cooldown-(now-last);  
+  
+const h=  
+Math.floor(  
+remaining/3600000  
+);  
+  
+const m=  
+Math.floor(  
+(remaining%3600000)/60000  
+);  
+  
+alert(  
+t.already+  
+"\n\n"+  
+t.next+": "+  
+h+" "+t.hours+" "+  
+m+" "+t.minutes  
+);  
+  
+return;  
+  
+}  
+  
+setBalance(  
+getBalance()+DAILY_REWARD  
+);  
+  
+localStorage.setItem(  
+"earnzood_daily_claim",  
+now  
+);  
+  
+alert(  
+t.dailySuccess+  
+"\n\n+$"+  
+DAILY_REWARD.toFixed(2)  
+);  
+  
+renderHome();  
+  
+}  
+  
+  
+/* =========================  
+   ADS PAGE  
+========================= */  
+  
+function renderAds(){  
+  
+const t=tr();  
+  
+const count=  
+Number(  
+localStorage.getItem(  
+"earnzood_ad_count"  
+) || "0"  
+);  
+  
+const income=  
+Number(  
+localStorage.getItem(  
+"earnzood_ad_income"  
+) || "0"  
+);  
+  
+document.getElementById("app").innerHTML=`  
+  
+<div class="page">  
+  
+<div class="page-title">  
+  
+<button class="back"  
+onclick="renderHome()">  
+←  
+</button>  
+  
+<h2>${t.adsTitle}</h2>  
+  
+</div>  
+  
+  
+<div class="panel center">  
+  
+<div class="big-icon">  
+📺  
+</div>  
+  
+<h3>${t.watch}</h3>  
+  
+<p style="color:#9ca6b8">  
+${t.adsText}  
+</p>  
+  
+<div class="reward">  
++$${AD_REWARD.toFixed(2)}  
+</div>  
+  
+<button  
+class="primary"  
+id="watchAdButton"  
+onclick="watchAd()">  
+  
+🎬 ${t.watch}  
+  
+</button>  
+  
+</div>  
+  
+  
+<div class="panel">  
+  
+<div class="stat">  
+  
+<span>  
+📊 ${t.todayAds}  
+</span>  
+  
+<b id="adCount">  
+${count} / ${MAX_ADS}  
+</b>  
+  
+</div>  
+  
+  
+<div class="stat">  
+  
+<span>  
+💰 ${t.adIncome}  
+</span>  
+  
+<b id="adIncome">  
+$${income.toFixed(2)}  
+</b>  
+  
+</div>  
+  
+</div>  
+  
+</div>  
+  
+`;  
+  
+}  
+  
+  
+/* =========================  
+   ADSGRAM REWARD  
+========================= */  
+  
+let AdController = null;  
+  
+function initAds(){  
+  
+try{  
+  
+if(  
+window.Adsgram &&  
+typeof window.Adsgram.init==="function"  
+){  
+  
+AdController =  
+window.Adsgram.init({  
+blockId: ADSGRAM_BLOCK_ID  
+});  
+  
+return true;  
+  
+}  
+  
+}catch(error){  
+  
+console.error(  
+"AdsGram initialization error:",  
+error  
+);  
+  
+}  
+  
+return false;  
+  
+}  
+  
+  
+/* =========================  
+   WATCH AD  
+========================= */  
+  
+async function watchAd(){  
+  
+const t=tr();  
+  
+const count=  
+Number(  
+localStorage.getItem(  
+"earnzood_ad_count"  
+) || "0"  
+);  
+  
+if(count>=MAX_ADS){  
+  
+alert(t.adLimit);  
+  
+return;  
+  
+}  
+  
+const button=  
+document.getElementById(  
+"watchAdButton"  
+);  
+  
+if(button){  
+  
+button.disabled=true;  
+  
+button.textContent=  
+"⏳ Loading...";  
+  
+}  
+  
+  
+if(!AdController){  
+  
+initAds();  
+  
+}  
+  
+  
+if(!AdController){  
+  
+if(button){  
+  
+button.disabled=false;  
+  
+button.textContent=  
+"🎬 "+t.watch;  
+  
+}  
+  
+alert(t.adError);  
+  
+return;  
+  
+}  
+  
+  
+try{  
+  
+const result=  
+await AdController.show();  
+  
+console.log(  
+"AdsGram result:",  
+result  
+);  
+  
+  
+if(  
+result &&  
+result.done===true  
+){  
+  
+const newCount=count+1;  
+  
+const oldIncome=  
+Number(  
+localStorage.getItem(  
+"earnzood_ad_income"  
+) || "0"  
+);  
+  
+const newIncome=  
+oldIncome+AD_REWARD;  
+  
+  
+localStorage.setItem(  
+"earnzood_ad_count",  
+newCount  
+);  
+  
+localStorage.setItem(  
+"earnzood_ad_income",  
+newIncome.toFixed(2)  
+);  
+  
+  
+setBalance(  
+getBalance()+AD_REWARD  
+);  
+  
+  
+alert(  
+t.adSuccess+  
+"\n\n+$"+  
+AD_REWARD.toFixed(2)  
+);  
+  
+  
+renderAds();  
+  
+}else{  
+  
+if(button){  
+  
+button.disabled=false;  
+  
+button.textContent=  
+"🎬 "+t.watch;  
+  
+}  
+  
+}  
+  
+}catch(error){  
+  
+console.error(  
+"AdsGram show error:",  
+error  
+);  
+  
+if(button){  
+  
+button.disabled=false;  
+  
+button.textContent=  
+"🎬 "+t.watch;  
+  
+}  
+  
+alert(t.adError);  
+  
+}  
+  
+}  
+  
+  
+/* =========================  
+   TASK PAGE  
+========================= */  
+  
+function renderTasks(){  
+  
+const t=tr();  
+  
+document.getElementById("app").innerHTML=`  
+  
+<div class="page">  
+  
+<div class="page-title">  
+  
+<button class="back"  
+onclick="renderHome()">  
+←  
+</button>  
+  
+<h2>${t.tasksTitle}</h2>  
+  
+</div>  
+  
+  
+<div class="panel">  
+  
+<div class="big-icon">  
+📋  
+</div>  
+  
+<div class="center">  
+  
+<h3>${t.tasksTitle}</h3>  
+  
+<p style="color:#9ca6b8">  
+${t.tasksText}  
+</p>  
+  
+<div class="task-reward">  
++$${TASK_REWARD.toFixed(2)}  
+</div>  
+  
+<div class="task-note">  
+${t.taskNote}  
+</div>  
+  
+</div>  
+  
+  
+<div class="task-box">  
+  
+<adsgram-task  
+data-block-id="${ADSGRAM_TASK_BLOCK_ID}"  
+data-debug="true"  
+data-debug-console="false"  
+class="task">  
+  
+</adsgram-task>  
+  
+</div>  
+  
+</div>  
+  
+</div>  
+  
+`;  
+  
+  
+/*  
+   گرفتن عنصر Task  
+*/  
+  
+const taskElement =  
+document.querySelector(  
+"adsgram-task"  
+);  
+  
+  
+/*  
+   اگر Task پیدا شد،  
+   به رویدادهای AdsGram گوش می‌دهیم.  
+*/  
+  
+if(taskElement){  
+  
+taskElement.addEventListener(  
+"reward",  
+function(event){  
+  
+console.log(  
+"AdsGram Task reward:",  
+event  
+);  
+  
+  
+/*  
+   مهم:  
+   فقط زمانی پاداش می‌دهیم که  
+   AdsGram رویداد reward ارسال کند.  
+*/  
+  
+setBalance(  
+getBalance()+TASK_REWARD  
+);  
+  
+localStorage.setItem(  
+"earnzood_task_income",  
+  
+(  
+Number(  
+localStorage.getItem(  
+"earnzood_task_income"  
+) || "0"  
+)  
++  
+TASK_REWARD  
+).toFixed(2)  
+);  
+  
+  
+alert(  
+t.taskCompleted+  
+"\n\n+$"+  
+TASK_REWARD.toFixed(2)  
+);  
+  
+  
+/*  
+   صفحه را دوباره نمایش می‌دهیم  
+   تا وضعیت جدید موجودی دیده شود.  
+*/  
+  
+renderHome();  
+  
+});  
+  
+  
+/*  
+   خطای بارگذاری یا نمایش Task  
+*/  
+  
+taskElement.addEventListener(  
+"onError",  
+function(event){  
+  
+console.error(  
+"AdsGram Task error:",  
+event  
+);  
+  
+});  
+  
+  
+/*  
+   اگر هیچ Task موجود نباشد  
+*/  
+  
+taskElement.addEventListener(  
+"onBannerNotFound",  
+function(event){  
+  
+console.log(  
+"AdsGram: No task available",  
+event  
+);  
+  
+});  
+  
+  
+/*  
+   اگر Session بیش از حد طولانی شود  
+*/  
+  
+taskElement.addEventListener(  
+"onTooLongSession",  
+function(event){  
+  
+console.log(  
+"AdsGram: Task session too long",  
+event  
+);  
+  
+});  
+  
+}  
+  
+}  
+  
+  
+/* =========================  
+   WHEEL  
+========================= */  
+  
+function renderWheel(){  
+  
+const t=tr();  
+  
+document.getElementById("app").innerHTML=`  
+  
+<div class="page">  
+  
+<div class="page-title">  
+  
+<button class="back"  
+onclick="renderHome()">  
+←  
+</button>  
+  
+<h2>${t.wheelTitle}</h2>  
+  
+</div>  
+  
+<div class="panel center">  
+  
+<div class="big-icon">  
+🎡  
+</div>  
+  
+<p style="color:#9ca6b8">  
+${t.wheelText}  
+</p>  
+  
+<button  
+class="primary"  
+onclick="alert('${t.coming}')">  
+  
+🎡  
+  
+</button>  
+  
+</div>  
+  
+</div>  
+  
+`;  
+  
+}  
+  
+  
+/* =========================  
+   INVITE  
+========================= */  
+  
+function renderInvite(){  
+  
+const t=tr();  
+  
+document.getElementById("app").innerHTML=`  
+  
+<div class="page">  
+  
+<div class="page-title">  
+  
+<button class="back"  
+onclick="renderHome()">  
+←  
+</button>  
+  
+<h2>${t.invitePage}</h2>  
+  
+</div>  
+  
+<div class="panel center">  
+  
+<div class="big-icon">  
+👥  
+</div>  
+  
+<p style="color:#9ca6b8">  
+${t.invitePageText}  
+</p>  
+  
+</div>  
+  
+</div>  
+  
+`;  
+  
+}  
+  
+  
+/* =========================  
+   ACCOUNT  
+========================= */  
+  
+function renderAccount(){  
+  
+const t=tr();  
+  
+document.getElementById("app").innerHTML=`  
+  
+<div class="page">  
+  
+<div class="page-title">  
+  
+<button class="back"  
+onclick="renderHome()">  
+←  
+</button>  
+  
+<h2>${t.accountTitle}</h2>  
+  
+</div>  
+  
+  
+<div class="panel">  
+  
+<div class="stat">  
+  
+<span>  
+💰 ${t.balanceLabel}  
+</span>  
+  
+<b>  
+$${getBalance().toFixed(2)}  
+</b>  
+  
+</div>  
+  
+  
+<div class="stat">  
+  
+<span>  
+👥 ${t.referrals}  
+</span>  
+  
+<b>  
+0  
+</b>  
+  
+</div>  
+  
+</div>  
+  
+</div>  
+  
+`;  
+  
+}  
+  
+  
+/* =========================  
+   START APP  
+========================= */  
+  
+document.documentElement.lang=  
+getLang();  
+  
+document.documentElement.dir=  
+getLang()==="en"  
+? "ltr"  
+: "rtl";  
+  
+initAds();  
+  
+renderHome();  
+  
+</script>  </body>  
+   </html>
