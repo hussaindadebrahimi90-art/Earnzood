@@ -1320,12 +1320,127 @@ onclick="alert('${t.coming}')">
    INVITE
 ========================= */
 
-function renderInvite(){
+   function renderInvite(){
 
 const t=tr();
 
+const user=window.Telegram?.WebApp?.initDataUnsafe?.user;
+
+if(!user){
+
+alert("لطفاً Mini App را از داخل تلگرام باز کنید.");
+
+return;
+
+}
+
+const referralLink=
+"https://t.me/Earnzood_bot?start="+user.id;
+
 document.getElementById("app").innerHTML=`
 
+<div class="page">
+
+<div class="page-title">
+
+<button class="back"
+onclick="renderHome()">
+←
+</button>
+
+<h2>${t.invitePage}</h2>
+
+</div>
+
+<div class="panel center">
+
+<div class="big-icon">
+👥
+</div>
+
+<h3>
+دعوت دوستان
+</h3>
+
+<p style="color:#9ca6b8">
+دوستانت را دعوت کن و با هر دعوت موفق پاداش بگیر.
+</p>
+
+<input
+id="referralInput"
+value="${referralLink}"
+readonly
+style="
+width:100%;
+padding:13px;
+border-radius:12px;
+border:1px solid #283246;
+background:#080b12;
+color:white;
+margin-top:15px;
+direction:ltr;
+">
+
+<button
+class="primary"
+style="margin-top:12px"
+onclick="copyReferral()">
+
+📋 کپی لینک دعوت
+
+</button>
+
+<button
+class="primary"
+style="margin-top:10px"
+onclick="shareReferral()">
+
+📤 دعوت دوستان
+
+</button>
+
+</div>
+
+</div>
+
+`;
+
+   }
+
+   function copyReferral(){
+
+const input=
+document.getElementById("referralInput");
+
+navigator.clipboard.writeText(
+input.value
+);
+
+alert("✅ لینک دعوت کپی شد!");
+
+}
+
+
+function shareReferral(){
+
+const input=
+document.getElementById("referralInput");
+
+const link=input.value;
+
+const shareUrl=
+"https://t.me/share/url?url="+
+encodeURIComponent(link)+
+"&text="+
+encodeURIComponent(
+"🎁 با من در EarnZood کسب درآمد کن!"
+);
+
+window.Telegram.WebApp.openTelegramLink(
+shareUrl
+);
+
+   }
 <div class="page">
 
 <div class="page-title">
