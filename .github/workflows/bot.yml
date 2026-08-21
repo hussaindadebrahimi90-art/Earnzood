@@ -11,11 +11,15 @@ permissions:
 
 jobs:
   run-bot:
+
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -24,9 +28,17 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install python-telegram-bot requests
+          python -m pip install --upgrade pip
+          pip install python-telegram-bot==22.5
 
-      - name: Run Bot
+      - name: Check bot files
+        run: |
+          echo "Checking files..."
+          ls -la
+          echo "Checking bot.py..."
+          grep -n "پنل مدیریت" bot.py || true
+
+      - name: Run EarnZood Bot
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
